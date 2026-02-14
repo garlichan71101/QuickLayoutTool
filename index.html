@@ -43,46 +43,15 @@
         .sidebar.collapsed + .toggle-sidebar { left: 0; }
 
         @media screen and (max-width: 768px) {
-    body {
-        /* 允许左右滑动，且强制从左向右排列 */
-        overflow-x: auto !important;
-        overflow-y: hidden !important;
-        display: flex !important;
-        flex-direction: row !important;
-        justify-content: flex-start !important; /* 确保从最左侧开始对齐 */
-        width: 100vw;
-        -webkit-overflow-scrolling: touch; /* 增加移动端滑动流畅度 */
-    }
+            :root { --sidebar-width: 85vw; } 
+            .preview-container { padding: 20px 10px !important; }
+            #capture-area { transform-origin: top center; zoom: 0.5; }
+            @supports (transform: scale(0.5)) {
+                #capture-area { zoom: 1; transform: scale(calc(100vw / 800)); margin-top: 0; }
+            }
+            .save-btn { width: auto; left: 20px; right: 20px; bottom: 20px; padding: 15px !important; }
+        }
 
-    .sidebar {
-        /* 强制占据固定宽度，不收缩 */
-        flex: 0 0 85vw !important; 
-        height: 100vh;
-        z-index: 1001;
-    }
-
-    .preview-container {
-        /* 预览区也强制占据一屏，紧随其后 */
-        flex: 0 0 100vw !important;
-        height: 100vh;
-        overflow-y: auto;
-        padding: 40px 10px !important;
-    }
-
-    /* 侧边栏收起时，通过 margin 彻底移除占位 */
-    .sidebar.collapsed {
-        margin-left: -85vw !important;
-        flex: 0 0 85vw !important;
-        opacity: 0;
-    }
-
-    #capture-area {
-        /* 确保缩放中心在左上角，防止偏移 */
-        transform-origin: top left !important;
-        margin-left: 50% !important;
-        transform: translateX(-50%) scale(calc(100vw / 750)) !important;
-    }
-}
         .section { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
         .section h3 { font-size: 0.95rem; color: #222; margin-top: 0; margin-bottom: 10px; border-left: 5px solid #d44b4b; padding-left: 10px; }
         label { display: block; margin-bottom: 8px; font-size: 0.8rem; font-weight: bold; color: #555; }
@@ -354,10 +323,6 @@
                 } else {
                     patternBox.style.filter = 'none';
                     patternBox.style.opacity = '0.1';
-                }
-                // 新增：强制移动端加载时回到最左侧
-                if (window.innerWidth <= 768) {
-                    document.body.scrollLeft = 0;
                 }
             };
             pCont.appendChild(b);
