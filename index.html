@@ -43,14 +43,40 @@
         .sidebar.collapsed + .toggle-sidebar { left: 0; }
 
         @media screen and (max-width: 768px) {
-            :root { --sidebar-width: 85vw; } 
-            .preview-container { padding: 20px 10px !important; }
-            #capture-area { transform-origin: top center; zoom: 0.5; }
-            @supports (transform: scale(0.5)) {
-                #capture-area { zoom: 1; transform: scale(calc(100vw / 800)); margin-top: 0; }
-            }
-            .save-btn { width: auto; left: 20px; right: 20px; bottom: 20px; padding: 15px !important; }
+    :root { --sidebar-width: 85vw; } 
+
+    /* 允许 body 在水平方向滑动 */
+    body { 
+        overflow-x: auto !important; 
+        overflow-y: hidden; /* 保持纵向由内部容器控制或改为 auto */
+    }
+
+    .sidebar {
+        /* 确保侧边栏不会因为 flex 压缩而变形 */
+        flex-shrink: 0; 
+    }
+
+    .preview-container { 
+        padding: 20px 10px !important; 
+        /* 确保预览区不被压缩，维持最小宽度 */
+        min-width: 100vw; 
+        flex-shrink: 0;
+    }
+
+    #capture-area { 
+        transform-origin: top center; 
+        zoom: 0.5; 
+    }
+
+    @supports (transform: scale(0.5)) {
+        #capture-area { 
+            zoom: 1; 
+            transform: scale(calc(100vw / 800)); 
+            margin-top: 0; 
         }
+    }
+    .save-btn { width: auto; left: 20px; right: 20px; bottom: 20px; padding: 15px !important; }
+}
 
         .section { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
         .section h3 { font-size: 0.95rem; color: #222; margin-top: 0; margin-bottom: 10px; border-left: 5px solid #d44b4b; padding-left: 10px; }
