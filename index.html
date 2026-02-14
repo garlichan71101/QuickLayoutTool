@@ -21,7 +21,6 @@
 
         body { margin: 0; font-family: 'Noto Sans SC', sans-serif; background: #111; display: flex; height: 100vh; overflow: hidden; color: #333; }
 
-        /* 侧边栏基础样式 */
         .sidebar { 
             width: var(--sidebar-width); 
             min-width: var(--sidebar-width); 
@@ -32,7 +31,6 @@
         }
         .sidebar.collapsed { width: 0; min-width: 0; padding: 0; overflow: hidden; opacity: 0; }
         
-        /* 切换按钮 - 优化触摸 */
         .toggle-sidebar { 
             position: fixed; left: var(--sidebar-width); top: 50%; transform: translateY(-50%); 
             background: #fff; border: 1px solid #ddd; border-left: none; 
@@ -44,16 +42,10 @@
         }
         .sidebar.collapsed + .toggle-sidebar { left: 0; }
 
-        /* 移动端适配核心代码 */
         @media screen and (max-width: 768px) {
-            :root { --sidebar-width: 85vw; } /* 手机端侧边栏占 85% 宽度 */
+            :root { --sidebar-width: 85vw; } 
             .preview-container { padding: 20px 10px !important; }
-            #capture-area { 
-                transform-origin: top center;
-                /* 根据屏幕宽度自动缩放预览图，防止溢出 */
-                zoom: 0.5; /* 兼容性写法 */
-            }
-            /* 如果支持 scale 则用更现代的写法 */
+            #capture-area { transform-origin: top center; zoom: 0.5; }
             @supports (transform: scale(0.5)) {
                 #capture-area { zoom: 1; transform: scale(calc(100vw / 800)); margin-top: 0; }
             }
@@ -63,7 +55,7 @@
         .section { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
         .section h3 { font-size: 0.95rem; color: #222; margin-top: 0; margin-bottom: 10px; border-left: 5px solid #d44b4b; padding-left: 10px; }
         label { display: block; margin-bottom: 8px; font-size: 0.8rem; font-weight: bold; color: #555; }
-        input, textarea, select { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; font-size: 16px; /* 防止 iOS 自动放大 */}
+        input, textarea, select { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; font-size: 16px; }
         
         input[type="range"] { border: none; padding: 0; height: 20px; }
 
@@ -81,13 +73,14 @@
             transition: background 0.3s; flex-shrink: 0;
         }
 
-        .pattern-layer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 1; opacity: 0.1; }
-        .pt-dots { background-image: radial-gradient(var(--primary-color) 1.5px, transparent 0); background-size: 24px 24px; }
-        .pt-grid { background-image: linear-gradient(var(--primary-color) 0.5px, transparent 0.5px), linear-gradient(90deg, var(--primary-color) 0.5px, transparent 0.5px); background-size: 35px 35px; }
-        .pt-wave { background-image: radial-gradient(circle at 32.5px -12px, transparent 12px, var(--primary-color) 12px, var(--primary-color) 14px, transparent 14px); background-size: 65px 65px; }
-        .pt-stars { background-image: radial-gradient(circle at 30px 30px, var(--primary-color) 1.5px, transparent 2px), radial-gradient(ellipse 1px 10px at 30px 30px, var(--primary-color) 0%, transparent 100%), radial-gradient(ellipse 10px 1px at 30px 30px, var(--primary-color) 0%, transparent 100%); background-size: 60px 60px; }
+        .pattern-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; opacity: 0.1; transition: filter 0.3s, opacity 0.3s; }
+        
+        .pt-dots { background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='1.5' cy='1.5' r='1.5' fill='%23000'/%3E%3C/svg%3E"); }
+        .pt-grid { background-image: url("data:image/svg+xml,%3Csvg width='35' height='35' viewBox='0 0 35 35' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 35 0 L 0 0 0 35' fill='none' stroke='%23000' stroke-width='0.5'/%3E%3C/svg%3E"); }
+        .pt-wave { background-image: url("data:image/svg+xml,%3Csvg width='65' height='65' viewBox='0 0 65 65' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 32.5 Q 16.25 15 32.5 32.5 T 65 32.5' fill='none' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E"); }
+        .pt-stars { background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 20 L30 40 M20 30 L40 30' stroke='%23000' stroke-width='1'/%3E%3Ccircle cx='30' cy='30' r='1.5' fill='%23000'/%3E%3C/svg%3E"); }
 
-        .top-section { display: flex; flex-direction: column; width: 100%; position: relative; z-index: 20; }
+        .top-section { display: flex; flex-direction: column; width: 100%; position: relative; z-index: 20; box-sizing: border-box; }
         .banner-box { width: 100%; height: auto; position: relative; overflow: hidden; display: none; }
         #p-banner { width: 100%; display: block; }
         #bannerOverlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
@@ -95,11 +88,11 @@
         .header-area { padding: 50px 75px 20px 75px; writing-mode: horizontal-tb; text-align: left; }
         .ly-typewriter .content-main { border: 1px solid var(--primary-color); margin: 40px 60px; padding: 40px; box-sizing: border-box; }
 
-        .ly-ancient .top-section { flex-direction: row-reverse; justify-content: flex-start; align-items: flex-start; padding: 60px 75px 20px 75px; gap: 40px; }
-        .ly-ancient .header-area { padding: 0; flex-shrink: 0; display: flex; flex-direction: row-reverse; max-width: 300px; }
-        .ly-ancient .p-title { writing-mode: vertical-rl; text-orientation: upright; font-size: 2.6rem; letter-spacing: 0.5rem; border-left: 1px solid; padding-left: 20px; line-height: 1.2; }
-        .ly-ancient .p-author { display: block; writing-mode: vertical-rl; text-orientation: upright; font-size: 1.1rem; margin-right: 20px; opacity: 0.8; padding-top: 15px; }
-        .ly-ancient .banner-box { display: block; width: 300px; margin: 0; order: 2; box-shadow: 0 15px 45px rgba(0,0,0,0.35); }
+        .ly-ancient .top-section { flex-direction: row-reverse; justify-content: flex-start; align-items: flex-start; padding: 60px 75px 20px 75px; gap: 30px; }
+        .ly-ancient .header-area { padding: 0; flex-shrink: 0; display: flex; flex-direction: row-reverse; max-width: 280px; }
+        .ly-ancient .p-title { writing-mode: vertical-rl; text-orientation: upright; font-size: 2.6rem; letter-spacing: 0.5rem; border-left: 1px solid; padding-left: 20px; line-height: 1.2; display: block; }
+        .ly-ancient .p-author { display: block; writing-mode: vertical-rl; text-orientation: upright; font-size: 1.1rem; margin-right: 0; margin-left: 20px; opacity: 0.8; padding-top: 15px; width: 1.2em; word-break: break-all; }
+        .ly-ancient .banner-box { display: block; width: 240px; margin: 0; order: 2; box-shadow: 0 15px 45px rgba(0,0,0,0.35); }
 
         .content-main { padding: 20px 75px 120px 75px; position: relative; z-index: 10; flex-grow: 1; }
         .p-title { font-size: calc(var(--font-size) * 1.8); margin: 0; font-weight: 700; line-height: 1.4; white-space: pre-wrap; word-break: break-word; }
@@ -212,8 +205,9 @@
 <div class="toggle-sidebar" onclick="toggleSidebar()">◀<br>收<br>起</div>
 
 <div class="preview-container">
-    <!-- 增加一个 wrapper 专门处理手机端的缩放显示 -->
     <div id="capture-area" class="ly-standard">
+        <div id="patternBox" class="pattern-layer"></div>
+        
         <div class="top-section">
             <div id="bannerBox" class="banner-box">
                 <div id="bannerOverlay"></div>
@@ -226,16 +220,21 @@
         </div>
         
         <div id="contentArea" style="position: relative; flex-grow: 1;">
-            <div id="patternBox" class="pattern-layer"></div>
             <div class="content-main">
                 <div class="p-preface" id="p-preface"></div>
                 <div class="p-text" id="p-text" contenteditable="true">
     你好，这里是丐版长文排版器。
     
-    功能目前很少，只能排版长文。支持一键缩进，适配手机屏幕（吗？）
-    本排版器支持至多1w5的长文排版，字数过多会因图片过大而无法生成或打开长图。横幅图片尺寸过大或者过于清晰（2k或4k）同样会导致卡顿。
-    你可以在左边的选项栏中自定义你的排版，挑完自助后点击右下角的红色按钮“导出长图”来获得你的长图排版。
-    有任何使用问题或功能建议可以在我的github上留言。
+    功能目前很少，只能排版长文。目前手机可以愉快使用本工具！
+    本排版器支持至多1w5的长文排版，字数过多会因图片过大而无法生成/打开长图。横幅图片尺寸过大或者过于清晰（2k或4k）同样会导致卡顿。
+    手机用户推荐排版1w字以下的文章，尤其是IOS用户，有可能会无法生成。但试试也无妨。
+    你可以在左边的选项栏中自定义你的排版，挑完自助后点击右下角的“导出长图”来获得你的长图排版。
+    有任何使用问题，或功能建议，可以在我的github上留言。
+
+    已知的问题：
+    “古雅”排版选项中，作者名如果太长会从竖排变成乱排。
+    解决方法：
+    别取那么长的名字。
     
     玩得开心！——R
                 </div>
@@ -245,10 +244,9 @@
     </div>
 </div>
 
-<button class="save-btn" onclick="saveAsImage()">导出高清长图</button>
+<button class="save-btn" onclick="saveAsImage()">导出长图</button>
 
 <script>
-    // JS 逻辑保持不变，只需确保缩放不影响 html2canvas 采样
     const palettes = [
         { name: '经典', bg: '#ffffff', text: '#2d3436' },
         { name: '宣纸', bg: '#f4efe1', text: '#3e2723' },
@@ -313,9 +311,17 @@
                 const area = document.getElementById('capture-area');
                 area.style.backgroundColor = p.bg; area.style.color = p.text;
                 document.documentElement.style.setProperty('--primary-color', p.text);
+                
                 const patternBox = document.getElementById('patternBox');
                 const darkThemes = ['黑暗', '森林', '月夜', '古铜'];
-                patternBox.style.color = darkThemes.includes(p.name) ? '#ffffff' : p.text;
+                if (darkThemes.includes(p.name)) {
+                    patternBox.style.filter = 'invert(1) brightness(2)';
+                    // 核心修改：将深色主题透明度调整为 10%
+                    patternBox.style.opacity = '0.1';
+                } else {
+                    patternBox.style.filter = 'none';
+                    patternBox.style.opacity = '0.1';
+                }
             };
             pCont.appendChild(b);
         });
@@ -386,7 +392,6 @@
         btn.innerText = '正在生成...'; btn.disabled = true;
         const area = document.getElementById('capture-area');
         
-        // 关键：导出前暂时移除缩放效果，确保采样正确
         const originalTransform = area.style.transform;
         const originalZoom = area.style.zoom;
         area.style.transform = 'none';
@@ -398,14 +403,22 @@
                 scale: 2, 
                 useCORS: true,
                 backgroundColor: getComputedStyle(area).backgroundColor,
-                height: area.scrollHeight, 
-                windowHeight: area.scrollHeight
+                height: area.scrollHeight,
+                windowHeight: area.scrollHeight,
+                onclone: (clonedDoc) => {
+                    const clonedPattern = clonedDoc.getElementById('patternBox');
+                    if (clonedPattern) {
+                        clonedPattern.style.height = area.scrollHeight + 'px';
+                        clonedPattern.style.filter = getComputedStyle(document.getElementById('patternBox')).filter;
+                    }
+                }
             });
             const link = document.createElement('a');
             link.download = '排版长图_' + Date.now() + '.png';
             link.href = canvas.toDataURL('image/png'); link.click();
         } catch (e) { 
-            alert('导出失败，请缩短文章。'); 
+            console.error(e);
+            alert('导出失败。'); 
         } finally {
             area.style.transform = originalTransform;
             area.style.zoom = originalZoom;
