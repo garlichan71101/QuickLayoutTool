@@ -42,15 +42,67 @@
         }
         .sidebar.collapsed + .toggle-sidebar { left: 0; }
 
+        /* --- 修正后的移动端适配核心代码 --- */
         @media screen and (max-width: 768px) {
-            :root { --sidebar-width: 85vw; } 
-            .preview-container { padding: 20px 10px !important; }
-            #capture-area { transform-origin: top center; zoom: 0.5; }
-            @supports (transform: scale(0.5)) {
-                #capture-area { zoom: 1; transform: scale(calc(100vw / 800)); margin-top: 0; }
+            :root { --sidebar-width: 280px; } 
+
+            /* 1. 侧边栏完全悬浮，不挤压主视图空间 */
+            .sidebar { 
+                position: fixed; 
+                height: 100%; 
+                left: 0; top: 0; 
+                box-shadow: 10px 0 30px rgba(0,0,0,0.3);
+                transform: translateX(0);
+                opacity: 1 !important;
+                visibility: visible;
+                z-index: 2500;
             }
-            .save-btn { width: auto; left: 20px; right: 20px; bottom: 20px; padding: 15px !important; }
+            .sidebar.collapsed { 
+                transform: translateX(-100%); 
+                visibility: hidden;
+            }
+
+            /* 2. 核心修复：取消 flex 居中，改为 block 布局配合 overflow-x */
+            .preview-container { 
+                padding: 40px 0 !important; 
+                width: 100vw;
+                height: 100vh;
+                display: block !important; /* 必须改为 block 以禁用 justify-content:center */
+                overflow-x: auto !important; /* 允许横向滚动 */
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                position: relative;
+                text-align: left; /* 确保内容从左侧开始 */
+            }
+
+            /* 3. 核心修复：调整原点与间距，确保不被左侧遮挡 */
+            #capture-area { 
+                margin: 0 20px !important; /* 给左侧留出一点安全边距 */
+                transform-origin: top left !important; /* 必须从左上角缩放 */
+                /* 缩放比例改为固定 0.8 或根据宽度，但保证其宽度大于屏幕从而可以滚动 */
+                transform: scale(0.8); 
+                transition: transform 0.3s ease;
+                display: block;
+            }
+
+            /* 4. 底部按钮适配 */
+            .save-btn { 
+                width: calc(100% - 40px); 
+                left: 20px; 
+                right: 20px; 
+                bottom: 20px; 
+                padding: 15px !important; 
+                text-align: center;
+                z-index: 3000;
+            }
+
+            /* 5. 调整切换按钮 */
+            .toggle-sidebar {
+                padding: 15px 8px;
+                z-index: 2600;
+            }
         }
+        /* --- 移动端适配结束 --- */
 
         .section { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
         .section h3 { font-size: 0.95rem; color: #222; margin-top: 0; margin-bottom: 10px; border-left: 5px solid #d44b4b; padding-left: 10px; }
