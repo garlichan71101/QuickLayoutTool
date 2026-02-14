@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>长文排版乞丐版 v18.0</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont@1.1.0/style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Noto+Serif+SC:wght@400;700&family=Inter:wght@400;700&family=Lora:ital,wght@0,400;0,700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #333;
+            --bg-color: #ffffff;
+            --pattern-color: rgba(0,0,0,0.1);
+            --font-size: 18px;
+            --line-height: 1.8;
+            --ch-font: 'Noto Sans SC';
+            --en-font: 'Inter';
+        }
+
+        body { margin: 0; font-family: 'Noto Sans SC', sans-serif; background: #111; display: flex; height: 100vh; overflow: hidden; color: #333; }
+
+        .sidebar { width: 380px; background: #fff; border-right: 1px solid #ddd; overflow-y: auto; padding: 25px; box-sizing: border-box; z-index: 1000; }
+        .section { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+        .section h3 { font-size: 0.95rem; color: #222; margin-top: 0; margin-bottom: 10px; border-left: 5px solid #d44b4b; padding-left: 10px; }
+        label { display: block; margin-bottom: 8px; font-size: 0.8rem; font-weight: bold; color: #555; }
+        input, textarea, select { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; }
+
+        .grid-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .btn-opt { padding: 12px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 6px; font-size: 0.8rem; text-align: center; transition: 0.2s; }
+        .btn-opt.active { border-color: #d44b4b; background: #fff5f5; color: #d44b4b; font-weight: bold; }
+
+        .preview-container { flex: 1; padding: 60px 40px; overflow-y: auto; background: #222; display: block; }
+
+        #capture-area { 
+            width: 720px; margin: 0 auto; height: auto; min-height: 1000px;
+            background-color: var(--bg-color); color: var(--primary-color);
+            position: relative; display: flex; flex-direction: column;
+            font-family: var(--en-font), var(--ch-font), sans-serif;
+            transition: background 0.3s;
+        }
+
+        /* 底纹样式：纯代码生成 Pattern */
+        .pattern-layer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 1; opacity: 0.1; }
+        .pt-dots { background-image: radial-gradient(currentColor 1.5px, transparent 0); background-size: 24px 24px; }
+        .pt-grid { background-image: linear-gradient(currentColor 0.5px, transparent 0.5px), linear-gradient(90deg, currentColor 0.5px, transparent 0.5px); background-size: 35px 35px; }
+        
+        /* 1. 刮痕纹：代码生成，线条 2px，间隔 65px */
+        .pt-wave { 
+            background-image: radial-gradient(circle at 32.5px -12px, transparent 12px, currentColor 12px, currentColor 14px, transparent 14px);
+            background-size: 65px 65px;
+        }
+        /* 2. 星星纹：代码生成，60px 间隔，10px 大小 */
+        .pt-stars { 
+            background-image: 
+                radial-gradient(circle at 30px 30px, currentColor 1.5px, transparent 2px),
+                radial-gradient(ellipse 1px 10px at 30px 30px, currentColor 0%, transparent 100%),
+                radial-gradient(ellipse 10px 1px at 30px 30px, currentColor 0%, transparent 100%);
+            background-size: 60px 60px;
+        }
+
+        .top-section { display: flex; flex-direction: column; width: 100%; position: relative; z-index: 20; }
+        .banner-box { width: 100%; height: auto; position: relative; overflow: hidden; display: none; }
+        #p-banner { width: 100%; display: block; }
+        #bannerOverlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
+
+        .header-area { padding: 50px 75px 20px 75px; writing-mode: horizontal-tb; text-align: left; }
+
+        .ly-typewriter .content-main { border: 1px solid var(--primary-color); margin: 40px 60px; padding: 40px; box-sizing: border-box; }
+
+        .ly-ancient .top-section { flex-direction: row-reverse; justify-content: flex-end; align-items: flex-start; padding: 60px 75px 20px 75px; gap: 40px; }
+        .ly-ancient .header-area { padding: 0; flex-shrink: 0; display: flex; flex-direction: row-reverse; max-width: 300px; }
+        .ly-ancient .p-title { writing-mode: vertical-rl; text-orientation: upright; font-size: 2.6rem; letter-spacing: 0.5rem; border-left: 1px solid; padding-left: 20px; line-height: 1.2; }
+        .ly-ancient .p-author { writing-mode: vertical-rl; text-orientation: upright; font-size: 1.1rem; margin-right: 20px; opacity: 0.8; padding-top: 15px; }
+        .ly-ancient .banner-box { display: block; width: 300px; margin: 0; order: 2; box-shadow: 0 15px 45px rgba(0,0,0,0.35); }
+
+        .content-main { padding: 20px 75px 120px 75px; position: relative; z-index: 10; flex-grow: 1; }
+
+        .p-title { font-size: calc(var(--font-size) * 1.8); margin: 0; font-weight: 700; line-height: 1.4; }
+        .p-author { display: block; margin-top: 15px; font-size: 1.1rem; opacity: 0.8; }
+        .p-preface { border-left: 4px solid; padding: 15px 25px; margin: 40px 0; font-style: italic; background: rgba(0,0,0,0.03); }
+        .p-text { font-size: var(--font-size); line-height: var(--line-height); text-align: justify; outline: none; white-space: pre-wrap; position: relative; z-index: 10; }
+        .p-postscript { margin-top: 60px; padding-top: 30px; border-top: 1px dashed; font-size: 1rem; opacity: 0.7; }
+
+        .toolbar { display: flex; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
+        .toolbar button { padding: 6px 10px; background: #eee; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .save-btn { position: fixed; bottom: 30px; right: 30px; background: #d44b4b; color: white; border: none; padding: 18px 50px; border-radius: 50px; cursor: pointer; font-weight: bold; font-size: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 2000; }
+        .clear-btn { background: #666; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="section">
+        <h3>1. 横幅图</h3>
+        <input type="file" id="imageInput" accept="image/*">
+        <button class="clear-btn" onclick="clearImage()">清除图片</button>
+        <label>图片透明度</label>
+        <input type="range" id="bannerOpacity" min="10" max="100" value="100">
+        <label>蒙层遮罩</label>
+        <select id="overlayColor">
+            <option value="transparent">无蒙层</option>
+            <option value="rgba(255,255,255,0.3)">浅色遮罩</option>
+            <option value="rgba(0,0,0,0.3)">深色遮罩</option>
+        </select>
+    </div>
+
+    <div class="section">
+        <h3>2. 核心内容</h3>
+        <label>文章标题（可选）</label>
+        <input type="text" id="titleInput" value="在左侧输入框输入标题">
+        <label>作者署名（可选）</label>
+        <input type="text" id="authorInput" value="在左侧输入框输入作者名">
+        <label>题记 (可选)</label>
+        <textarea id="prefaceInput" rows="2"></textarea>
+        <label>作者附言 (可选)</label>
+        <textarea id="postscriptInput" rows="2"></textarea>
+    </div>
+
+    <div class="section">
+        <h3>3. 字体与编辑</h3>
+        <label>中文字体</label>
+        <select id="chFontSelect">
+            <option value="'Noto Sans SC'">思源黑体</option>
+            <option value="'Noto Serif SC'">思源宋体</option>
+            <option value="'LXGW WenKai Screen'">霞鹜文楷</option>
+        </select>
+        <label>英文字体</label>
+        <select id="enFontSelect">
+            <option value="'Inter'">Inter</option>
+            <option value="'Lora'">Lora</option>
+            <option value="'Dancing Script'">Dancing Script</option>
+        </select>
+        <label>字号调整</label>
+        <select id="fontSizeSelect">
+            <option value="16px">16px</option>
+            <option value="18px" selected>18px</option>
+            <option value="20px">20px</option>
+            <option value="22px">22px</option>
+        </select>
+        <div class="toolbar">
+            <button onclick="document.execCommand('bold')">B</button>
+            <button onclick="document.execCommand('italic')">I</button>
+            <button onclick="document.execCommand('underline')">U</button>
+            <button onclick="document.execCommand('justifyLeft')">左</button>
+            <button onclick="document.execCommand('justifyCenter')">中</button>
+            <button onclick="document.execCommand('justifyRight')">右</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>4. 样式方案</h3>
+        <div class="grid-options" id="layoutSelect">
+            <div class="btn-opt active" data-ly="ly-standard">简约</div>
+            <div class="btn-opt" data-ly="ly-ancient">古雅</div>
+            <div class="btn-opt" data-ly="ly-typewriter">信件</div>
+        </div>
+        <br>
+        <div class="grid-options" id="paletteSelect"></div>
+        <br>
+        <div class="grid-options" id="patternSelect">
+            <div class="btn-opt active" data-pt="">无底纹</div>
+            <div class="btn-opt" data-pt="pt-dots">点阵</div>
+            <div class="btn-opt" data-pt="pt-grid">方格</div>
+            <div class="btn-opt" data-pt="pt-wave">刮痕</div>
+            <div class="btn-opt" data-pt="pt-stars">星星</div>
+        </div>
+    </div>
+</div>
+
+<div class="preview-container">
+    <div id="capture-area" class="ly-standard">
+        <div class="top-section">
+            <div id="bannerBox" class="banner-box">
+                <div id="bannerOverlay"></div>
+                <img id="p-banner" src="">
+            </div>
+            <div class="header-area">
+                <h1 class="p-title" id="p-title"></h1>
+                <span class="p-author" id="p-author"></span>
+            </div>
+        </div>
+        
+        <div id="contentArea" style="position: relative; flex-grow: 1;">
+            <div id="patternBox" class="pattern-layer"></div>
+            <div class="content-main">
+                <div class="p-preface" id="p-preface"></div>
+                <div class="p-text" id="p-text" contenteditable="true">
+    你好，这里是丐版长文排版器。
+    功能目前很少，只能排版长文。我忘了加一键缩进功能了哈哈，之后会加上的。
+    本排版器支持至多1w5的长文排版，字数过多会因图片过大而无法生成或打开长图。横幅图片尺寸过大或者过于清晰（2k或4k）同样会导致卡顿。
+    你可以在左边的选项栏中自定义你的排版。挑完自助后点击右下角的红色按钮“导出长图”来获得你的长图排版。
+    那么，从替换掉本段文字开始，玩得开心！——R
+                </div>
+                <div class="p-postscript" id="p-postscript"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<button class="save-btn" onclick="saveAsImage()">导出高清长图</button>
+
+<script>
+    const palettes = [
+        { name: '经典', bg: '#ffffff', text: '#2d3436' },
+        { name: '宣纸', bg: '#f4efe1', text: '#3e2723' },
+        { name: '淡青', bg: '#eff7f5', text: '#2d5a44' },
+        { name: '藕粉', bg: '#fff0f3', text: '#5d2e3a' },
+        { name: '远山', bg: '#f1f2f6', text: '#2f3542' },
+        { name: '奶油', bg: '#fffaf0', text: '#574b1a' },
+        { name: '黑暗', bg: '#1a1a1b', text: '#d1d1d1' },
+        { name: '森林', bg: '#102018', text: '#a5b5ad' },
+        { name: '月夜', bg: '#0f172a', text: '#94a3b8' },
+        { name: '古铜', bg: '#2d241e', text: '#c5b3a3' }
+    ];
+
+    function formatAncientTitle(text) {
+        const specialPuncs = /[：”]/; 
+        let result = "";
+        let lineLength = 0;
+        for (let i = 0; i < text.length; i++) {
+            let char = text[i];
+            result += char;
+            lineLength++;
+
+            let shouldBreak = false;
+            if (lineLength >= 5) shouldBreak = true;
+            if (specialPuncs.test(char)) shouldBreak = true;
+            if (char === '—' && text[i+1] !== '—' && text[i-1] === '—') shouldBreak = true;
+
+            if (shouldBreak && i < text.length - 1) {
+                result += "<br>";
+                lineLength = 0;
+            }
+        }
+        return result;
+    }
+
+    window.onload = () => {
+        const pCont = document.getElementById('paletteSelect');
+        palettes.forEach((p, idx) => {
+            const b = document.createElement('div');
+            b.className = 'btn-opt' + (idx===0?' active':'');
+            b.style.background = p.bg; b.style.color = p.text; b.innerText = p.name;
+            b.onclick = () => {
+                document.querySelectorAll('#paletteSelect .btn-opt').forEach(x => x.classList.remove('active'));
+                b.classList.add('active');
+                
+                const area = document.getElementById('capture-area');
+                const patternBox = document.getElementById('patternBox');
+                
+                area.style.backgroundColor = p.bg;
+                area.style.color = p.text;
+                document.documentElement.style.setProperty('--primary-color', p.text);
+                
+                const darkThemes = ['黑暗', '森林', '月夜', '古铜'];
+                if (darkThemes.includes(p.name)) {
+                    patternBox.style.color = '#ffffff';
+                } else {
+                    patternBox.style.color = p.text;
+                }
+            };
+            pCont.appendChild(b);
+        });
+
+        const syncInputs = () => {
+            const isAncient = document.getElementById('capture-area').classList.contains('ly-ancient');
+            const titleVal = document.getElementById('titleInput').value;
+            const titleTarget = document.getElementById('p-title');
+            titleTarget.innerHTML = isAncient ? formatAncientTitle(titleVal) : titleVal;
+            titleTarget.style.display = titleVal.trim() ? 'block' : 'none';
+            ['author', 'preface', 'postscript'].forEach(f => {
+                const input = document.getElementById(f + 'Input');
+                const target = document.getElementById('p-' + f);
+                target.innerText = input.value;
+                target.style.display = input.value.trim() ? 'block' : 'none';
+            });
+        };
+
+        ['titleInput', 'authorInput', 'prefaceInput', 'postscriptInput'].forEach(id => {
+            document.getElementById(id).oninput = syncInputs;
+        });
+
+        document.querySelectorAll('#layoutSelect .btn-opt').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('#layoutSelect .btn-opt').forEach(x => x.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('capture-area').className = btn.dataset.ly;
+                syncInputs(); 
+            };
+        });
+
+        document.querySelectorAll('#patternSelect .btn-opt').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('#patternSelect .btn-opt').forEach(x => x.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('patternBox').className = 'pattern-layer ' + btn.dataset.pt;
+            };
+        });
+
+        document.getElementById('chFontSelect').onchange = (e) => document.documentElement.style.setProperty('--ch-font', e.target.value);
+        document.getElementById('enFontSelect').onchange = (e) => document.documentElement.style.setProperty('--en-font', e.target.value);
+        document.getElementById('fontSizeSelect').onchange = (e) => document.documentElement.style.setProperty('--font-size', e.target.value);
+
+        document.getElementById('imageInput').onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    document.getElementById('p-banner').src = ev.target.result;
+                    document.getElementById('bannerBox').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+        document.getElementById('bannerOpacity').oninput = (e) => document.getElementById('p-banner').style.opacity = e.target.value / 100;
+        document.getElementById('overlayColor').onchange = (e) => document.getElementById('bannerOverlay').style.backgroundColor = e.target.value;
+
+        syncInputs();
+    };
+
+    function clearImage() {
+        document.getElementById('p-banner').src = "";
+        document.getElementById('bannerBox').style.display = 'none';
+        document.getElementById('imageInput').value = "";
+    }
+
+    async function saveAsImage() {
+        const btn = document.querySelector('.save-btn');
+        btn.innerText = '正在生成...'; btn.disabled = true;
+        const area = document.getElementById('capture-area');
+        try {
+            document.querySelector('.preview-container').scrollTop = 0;
+            const canvas = await html2canvas(area, {
+                scale: 2, useCORS: true,
+                backgroundColor: getComputedStyle(area).backgroundColor,
+                height: area.scrollHeight, windowHeight: area.scrollHeight
+            });
+            const link = document.createElement('a');
+            link.download = '长图_' + Date.now() + '.png';
+            link.href = canvas.toDataURL('image/png'); link.click();
+        } catch (e) { alert('导出失败'); } finally {
+            btn.innerText = '导出长图'; btn.disabled = false;
+        }
+    }
+</script>
+</body>
+</html>
