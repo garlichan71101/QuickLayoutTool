@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>丐版长文排版器</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont@1.1.0/style.css" />
@@ -12,63 +12,80 @@
         :root {
             --primary-color: #333;
             --bg-color: #ffffff;
-            --pattern-color: rgba(0,0,0,0.1);
             --font-size: 18px;
             --line-height: 1.8;
             --ch-font: 'Noto Sans SC';
             --en-font: 'Inter';
+            --sidebar-width: 380px;
         }
 
         body { margin: 0; font-family: 'Noto Sans SC', sans-serif; background: #111; display: flex; height: 100vh; overflow: hidden; color: #333; }
 
-        /* 修改后的侧边栏：增加平滑过渡 */
-        .sidebar { width: 380px; min-width: 380px; background: #fff; border-right: 1px solid #ddd; overflow-y: auto; padding: 25px; box-sizing: border-box; z-index: 1000; transition: all 0.3s ease; position: relative; }
-        .sidebar.collapsed { width: 0; min-width: 0; padding: 0; overflow: hidden; border: none; opacity: 0; }
+        /* 侧边栏基础样式 */
+        .sidebar { 
+            width: var(--sidebar-width); 
+            min-width: var(--sidebar-width); 
+            background: #fff; border-right: 1px solid #ddd; 
+            overflow-y: auto; padding: 25px; box-sizing: border-box; 
+            z-index: 1000; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            position: relative; 
+        }
+        .sidebar.collapsed { width: 0; min-width: 0; padding: 0; overflow: hidden; opacity: 0; }
         
-        /* 侧边栏切换按钮 */
-        .toggle-sidebar { position: fixed; left: 380px; top: 50%; transform: translateY(-50%); background: #fff; border: 1px solid #ddd; border-left: none; padding: 20px 6px; cursor: pointer; z-index: 1100; border-radius: 0 8px 8px 0; font-size: 12px; color: #666; transition: all 0.3s ease; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
+        /* 切换按钮 - 优化触摸 */
+        .toggle-sidebar { 
+            position: fixed; left: var(--sidebar-width); top: 50%; transform: translateY(-50%); 
+            background: #fff; border: 1px solid #ddd; border-left: none; 
+            padding: 25px 10px; cursor: pointer; z-index: 1100; 
+            border-radius: 0 12px 12px 0; font-size: 14px; color: #d44b4b; 
+            transition: all 0.3s ease; box-shadow: 4px 0 15px rgba(0,0,0,0.2); 
+            display: flex; align-items: center; justify-content: center;
+            line-height: 1.2; font-weight: bold;
+        }
         .sidebar.collapsed + .toggle-sidebar { left: 0; }
+
+        /* 移动端适配核心代码 */
+        @media screen and (max-width: 768px) {
+            :root { --sidebar-width: 85vw; } /* 手机端侧边栏占 85% 宽度 */
+            .preview-container { padding: 20px 10px !important; }
+            #capture-area { 
+                transform-origin: top center;
+                /* 根据屏幕宽度自动缩放预览图，防止溢出 */
+                zoom: 0.5; /* 兼容性写法 */
+            }
+            /* 如果支持 scale 则用更现代的写法 */
+            @supports (transform: scale(0.5)) {
+                #capture-area { zoom: 1; transform: scale(calc(100vw / 800)); margin-top: 0; }
+            }
+            .save-btn { width: auto; left: 20px; right: 20px; bottom: 20px; padding: 15px !important; }
+        }
 
         .section { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
         .section h3 { font-size: 0.95rem; color: #222; margin-top: 0; margin-bottom: 10px; border-left: 5px solid #d44b4b; padding-left: 10px; }
         label { display: block; margin-bottom: 8px; font-size: 0.8rem; font-weight: bold; color: #555; }
-        input, textarea, select { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; }
+        input, textarea, select { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; font-size: 16px; /* 防止 iOS 自动放大 */}
         
-        /* 修复滑动条 UI 溢出问题 */
         input[type="range"] { border: none; padding: 0; height: 20px; }
 
         .grid-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .btn-opt { padding: 12px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 6px; font-size: 0.8rem; text-align: center; transition: 0.2s; }
         .btn-opt.active { border-color: #d44b4b; background: #fff5f5; color: #d44b4b; font-weight: bold; }
 
-        .preview-container { flex: 1; padding: 60px 40px; overflow-y: auto; background: #222; display: block; }
+        .preview-container { flex: 1; padding: 60px 40px; overflow-y: auto; background: #222; display: flex; justify-content: center; }
 
         #capture-area { 
-            width: 720px; margin: 0 auto; height: auto; min-height: 1000px;
+            width: 720px; min-height: 1000px; height: fit-content;
             background-color: var(--bg-color); color: var(--primary-color);
             position: relative; display: flex; flex-direction: column;
             font-family: var(--en-font), var(--ch-font), sans-serif;
-            transition: background 0.3s;
+            transition: background 0.3s; flex-shrink: 0;
         }
 
-        /* 底纹样式：纯代码生成 Pattern */
         .pattern-layer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 1; opacity: 0.1; }
         .pt-dots { background-image: radial-gradient(currentColor 1.5px, transparent 0); background-size: 24px 24px; }
         .pt-grid { background-image: linear-gradient(currentColor 0.5px, transparent 0.5px), linear-gradient(90deg, currentColor 0.5px, transparent 0.5px); background-size: 35px 35px; }
-        
-        /* 1. 刮痕纹：代码生成，线条 2px，间隔 65px */
-        .pt-wave { 
-            background-image: radial-gradient(circle at 32.5px -12px, transparent 12px, currentColor 12px, currentColor 14px, transparent 14px);
-            background-size: 65px 65px;
-        }
-        /* 2. 星星纹：代码生成，60px 间隔，10px 大小 */
-        .pt-stars { 
-            background-image: 
-                radial-gradient(circle at 30px 30px, currentColor 1.5px, transparent 2px),
-                radial-gradient(ellipse 1px 10px at 30px 30px, currentColor 0%, transparent 100%),
-                radial-gradient(ellipse 10px 1px at 30px 30px, currentColor 0%, transparent 100%);
-            background-size: 60px 60px;
-        }
+        .pt-wave { background-image: radial-gradient(circle at 32.5px -12px, transparent 12px, currentColor 12px, currentColor 14px, transparent 14px); background-size: 65px 65px; }
+        .pt-stars { background-image: radial-gradient(circle at 30px 30px, currentColor 1.5px, transparent 2px), radial-gradient(ellipse 1px 10px at 30px 30px, currentColor 0%, transparent 100%), radial-gradient(ellipse 10px 1px at 30px 30px, currentColor 0%, transparent 100%); background-size: 60px 60px; }
 
         .top-section { display: flex; flex-direction: column; width: 100%; position: relative; z-index: 20; }
         .banner-box { width: 100%; height: auto; position: relative; overflow: hidden; display: none; }
@@ -76,7 +93,6 @@
         #bannerOverlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
 
         .header-area { padding: 50px 75px 20px 75px; writing-mode: horizontal-tb; text-align: left; }
-
         .ly-typewriter .content-main { border: 1px solid var(--primary-color); margin: 40px 60px; padding: 40px; box-sizing: border-box; }
 
         .ly-ancient .top-section { flex-direction: row-reverse; justify-content: flex-end; align-items: flex-start; padding: 60px 75px 20px 75px; gap: 40px; }
@@ -86,16 +102,14 @@
         .ly-ancient .banner-box { display: block; width: 300px; margin: 0; order: 2; box-shadow: 0 15px 45px rgba(0,0,0,0.35); }
 
         .content-main { padding: 20px 75px 120px 75px; position: relative; z-index: 10; flex-grow: 1; }
-
         .p-title { font-size: calc(var(--font-size) * 1.8); margin: 0; font-weight: 700; line-height: 1.4; white-space: pre-wrap; word-break: break-word; }
         .p-author { display: block; margin-top: 15px; font-size: 1.1rem; opacity: 0.8; }
-        /* 修复题记标点吞噬：增加换行解析和边距 */
         .p-preface { border-left: 4px solid; padding: 15px 25px; margin: 40px 0; font-style: italic; background: rgba(0,0,0,0.03); white-space: pre-wrap; word-break: break-all; }
         .p-text { font-size: var(--font-size); line-height: var(--line-height); text-align: justify; outline: none; white-space: pre-wrap; position: relative; z-index: 10; }
         .p-postscript { margin-top: 60px; padding-top: 30px; border-top: 1px dashed; font-size: 1rem; opacity: 0.7; }
 
         .toolbar { display: flex; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
-        .toolbar button { padding: 6px 10px; background: #eee; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .toolbar button { padding: 8px 12px; background: #eee; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
         .save-btn { position: fixed; bottom: 30px; right: 30px; background: #d44b4b; color: white; border: none; padding: 18px 50px; border-radius: 50px; cursor: pointer; font-weight: bold; font-size: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 2000; }
         .clear-btn { background: #666; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-top: 5px; }
     </style>
@@ -119,13 +133,13 @@
 
     <div class="section">
         <h3>2. 核心内容</h3>
-        <label>文章标题（支持换行）</label>
+        <label>文章标题</label>
         <textarea id="titleInput" rows="2">在左侧输入框输入标题</textarea>
-        <label>作者署名（可选）</label>
+        <label>作者署名</label>
         <input type="text" id="authorInput" value="在左侧输入框输入作者名">
-        <label>题记 (可选)</label>
+        <label>题记</label>
         <textarea id="prefaceInput" rows="2"></textarea>
-        <label>作者附言 (可选)</label>
+        <label>作者附言</label>
         <textarea id="postscriptInput" rows="2"></textarea>
     </div>
 
@@ -178,11 +192,27 @@
             <div class="btn-opt" data-pt="pt-stars">星星</div>
         </div>
     </div>
+
+    <div class="section">
+        <h3>5. 文本一键处理</h3>
+        <label>首行缩进</label>
+        <div class="grid-options">
+            <div class="btn-opt" onclick="applyIndent(true)">一键缩进</div>
+            <div class="btn-opt" onclick="applyIndent(false)">取消缩进</div>
+        </div>
+        <br>
+        <label>段落间距</label>
+        <div class="grid-options" id="spacingSelect">
+            <div class="btn-opt active" onclick="setSpacing(1)">不空行</div>
+            <div class="btn-opt" onclick="setSpacing(2)">空一行</div>
+        </div>
+    </div>
 </div>
 
 <div class="toggle-sidebar" onclick="toggleSidebar()">◀<br>收<br>起</div>
 
 <div class="preview-container">
+    <!-- 增加一个 wrapper 专门处理手机端的缩放显示 -->
     <div id="capture-area" class="ly-standard">
         <div class="top-section">
             <div id="bannerBox" class="banner-box">
@@ -201,10 +231,13 @@
                 <div class="p-preface" id="p-preface"></div>
                 <div class="p-text" id="p-text" contenteditable="true">
     你好，这里是丐版长文排版器。
-    功能目前很少，只能排版长文。我忘了加一键缩进功能了哈哈，之后会加上的。
+    
+    功能目前很少，只能排版长文。支持一键缩进，适配手机屏幕（吗？）
     本排版器支持至多1w5的长文排版，字数过多会因图片过大而无法生成或打开长图。横幅图片尺寸过大或者过于清晰（2k或4k）同样会导致卡顿。
-    你可以在左边的选项栏中自定义你的排版。挑完自助后点击右下角的红色按钮“导出长图”来获得你的长图排版。
-    那么，从替换掉本段文字开始，玩得开心！——R
+    你可以在左边的选项栏中自定义你的排版，挑完自助后点击右下角的红色按钮“导出长图”来获得你的长图排版。
+    有任何使用问题或功能建议可以在我的github上留言。
+    
+    玩得开心！——R
                 </div>
                 <div class="p-postscript" id="p-postscript"></div>
             </div>
@@ -215,6 +248,7 @@
 <button class="save-btn" onclick="saveAsImage()">导出高清长图</button>
 
 <script>
+    // JS 逻辑保持不变，只需确保缩放不影响 html2canvas 采样
     const palettes = [
         { name: '经典', bg: '#ffffff', text: '#2d3436' },
         { name: '宣纸', bg: '#f4efe1', text: '#3e2723' },
@@ -232,33 +266,37 @@
         const sidebar = document.getElementById('sidebar');
         const btn = document.querySelector('.toggle-sidebar');
         sidebar.classList.toggle('collapsed');
-        if (sidebar.classList.contains('collapsed')) {
-            btn.innerHTML = '▶<br>展<br>开';
-        } else {
-            btn.innerHTML = '◀<br>收<br>起';
-        }
+        btn.innerHTML = sidebar.classList.contains('collapsed') ? '▶<br>展<br>开' : '◀<br>收<br>起';
+    }
+
+    function applyIndent(shouldIndent) {
+        const textEl = document.getElementById('p-text');
+        const lines = textEl.innerText.split('\n');
+        const newLines = lines.map(line => {
+            let cleanLine = line.trimStart().replace(/^[　 ]+/, '');
+            return shouldIndent && cleanLine.length > 0 ? '　　' + cleanLine : cleanLine;
+        });
+        textEl.innerText = newLines.join('\n');
+    }
+
+    function setSpacing(type) {
+        const textEl = document.getElementById('p-text');
+        let text = textEl.innerText;
+        const btns = document.querySelectorAll('#spacingSelect .btn-opt');
+        btns.forEach(b => b.classList.remove('active'));
+        btns[type-1].classList.add('active');
+        text = type === 1 ? text.replace(/\n\n+/g, '\n') : text.replace(/\n+/g, '\n\n');
+        textEl.innerText = text;
     }
 
     function formatAncientTitle(text) {
         const specialPuncs = /[：”]/; 
-        let result = "";
-        let lineLength = 0;
-        // 先处理掉用户手动输入的换行
+        let result = ""; let lineLength = 0;
         const cleanText = text.replace(/\n/g, "");
         for (let i = 0; i < cleanText.length; i++) {
-            let char = cleanText[i];
-            result += char;
-            lineLength++;
-
-            let shouldBreak = false;
-            if (lineLength >= 5) shouldBreak = true;
-            if (specialPuncs.test(char)) shouldBreak = true;
-            if (char === '—' && cleanText[i+1] !== '—' && cleanText[i-1] === '—') shouldBreak = true;
-
-            if (shouldBreak && i < cleanText.length - 1) {
-                result += "<br>";
-                lineLength = 0;
-            }
+            let char = cleanText[i]; result += char; lineLength++;
+            let shouldBreak = lineLength >= 5 || specialPuncs.test(char) || (char === '—' && cleanText[i+1] !== '—' && cleanText[i-1] === '—');
+            if (shouldBreak && i < cleanText.length - 1) { result += "<br>"; lineLength = 0; }
         }
         return result;
     }
@@ -272,20 +310,12 @@
             b.onclick = () => {
                 document.querySelectorAll('#paletteSelect .btn-opt').forEach(x => x.classList.remove('active'));
                 b.classList.add('active');
-                
                 const area = document.getElementById('capture-area');
-                const patternBox = document.getElementById('patternBox');
-                
-                area.style.backgroundColor = p.bg;
-                area.style.color = p.text;
+                area.style.backgroundColor = p.bg; area.style.color = p.text;
                 document.documentElement.style.setProperty('--primary-color', p.text);
-                
+                const patternBox = document.getElementById('patternBox');
                 const darkThemes = ['黑暗', '森林', '月夜', '古铜'];
-                if (darkThemes.includes(p.name)) {
-                    patternBox.style.color = '#ffffff';
-                } else {
-                    patternBox.style.color = p.text;
-                }
+                patternBox.style.color = darkThemes.includes(p.name) ? '#ffffff' : p.text;
             };
             pCont.appendChild(b);
         });
@@ -294,15 +324,11 @@
             const isAncient = document.getElementById('capture-area').classList.contains('ly-ancient');
             const titleVal = document.getElementById('titleInput').value;
             const titleTarget = document.getElementById('p-title');
-            
-            // 修复：标题处理换行符
             titleTarget.innerHTML = isAncient ? formatAncientTitle(titleVal) : titleVal.replace(/\n/g, '<br>');
             titleTarget.style.display = titleVal.trim() ? 'block' : 'none';
-            
             ['author', 'preface', 'postscript'].forEach(f => {
                 const input = document.getElementById(f + 'Input');
                 const target = document.getElementById('p-' + f);
-                // 题记等使用 innerHTML 处理换行，配合 white-space 样式解决标点问题
                 target.innerText = input.value;
                 target.style.display = input.value.trim() ? 'block' : 'none';
             });
@@ -346,7 +372,6 @@
         };
         document.getElementById('bannerOpacity').oninput = (e) => document.getElementById('p-banner').style.opacity = e.target.value / 100;
         document.getElementById('overlayColor').onchange = (e) => document.getElementById('bannerOverlay').style.backgroundColor = e.target.value;
-
         syncInputs();
     };
 
@@ -360,17 +385,30 @@
         const btn = document.querySelector('.save-btn');
         btn.innerText = '正在生成...'; btn.disabled = true;
         const area = document.getElementById('capture-area');
+        
+        // 关键：导出前暂时移除缩放效果，确保采样正确
+        const originalTransform = area.style.transform;
+        const originalZoom = area.style.zoom;
+        area.style.transform = 'none';
+        area.style.zoom = '1';
+
         try {
             document.querySelector('.preview-container').scrollTop = 0;
             const canvas = await html2canvas(area, {
-                scale: 2, useCORS: true,
+                scale: 2, 
+                useCORS: true,
                 backgroundColor: getComputedStyle(area).backgroundColor,
-                height: area.scrollHeight, windowHeight: area.scrollHeight
+                height: area.scrollHeight, 
+                windowHeight: area.scrollHeight
             });
             const link = document.createElement('a');
-            link.download = '长图_' + Date.now() + '.png';
+            link.download = '排版长图_' + Date.now() + '.png';
             link.href = canvas.toDataURL('image/png'); link.click();
-        } catch (e) { alert('导出失败'); } finally {
+        } catch (e) { 
+            alert('导出失败，请缩短文章。'); 
+        } finally {
+            area.style.transform = originalTransform;
+            area.style.zoom = originalZoom;
             btn.innerText = '导出长图'; btn.disabled = false;
         }
     }
