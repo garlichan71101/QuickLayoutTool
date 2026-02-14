@@ -44,67 +44,21 @@
         }
         .sidebar.collapsed + .toggle-sidebar { left: 0; }
 
-        /* --- 修正后的移动端适配核心代码 --- */
+        /* 移动端适配核心代码 */
         @media screen and (max-width: 768px) {
-            :root { --sidebar-width: 280px; } 
-
-            /* 1. 侧边栏完全悬浮，不挤压主视图空间 */
-            .sidebar { 
-                position: fixed; 
-                height: 100%; 
-                left: 0; top: 0; 
-                box-shadow: 10px 0 30px rgba(0,0,0,0.3);
-                transform: translateX(0);
-                opacity: 1 !important;
-                visibility: visible;
-                z-index: 2500;
-            }
-            .sidebar.collapsed { 
-                transform: translateX(-100%); 
-                visibility: hidden;
-            }
-
-            /* 2. 核心修复：取消 flex 居中，改为 block 布局配合 overflow-x */
-            .preview-container { 
-                padding: 40px 0 !important; 
-                width: 100vw;
-                height: 100vh;
-                display: block !important; /* 必须改为 block 以禁用 justify-content:center */
-                overflow-x: auto !important; /* 允许横向滚动 */
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-                position: relative;
-                text-align: left; /* 确保内容从左侧开始 */
-            }
-
-            /* 3. 核心修复：调整原点与间距，确保不被左侧遮挡 */
+            :root { --sidebar-width: 85vw; } /* 手机端侧边栏占 85% 宽度 */
+            .preview-container { padding: 20px 10px !important; }
             #capture-area { 
-                margin: 0 20px !important; /* 给左侧留出一点安全边距 */
-                transform-origin: top left !important; /* 必须从左上角缩放 */
-                /* 缩放比例改为固定 0.8 或根据宽度，但保证其宽度大于屏幕从而可以滚动 */
-                transform: scale(0.8); 
-                transition: transform 0.3s ease;
-                display: block;
+                transform-origin: top center;
+                /* 根据屏幕宽度自动缩放预览图，防止溢出 */
+                zoom: 0.5; /* 兼容性写法 */
             }
-
-            /* 4. 底部按钮适配 */
-            .save-btn { 
-                width: calc(100% - 40px); 
-                left: 20px; 
-                right: 20px; 
-                bottom: 20px; 
-                padding: 15px !important; 
-                text-align: center;
-                z-index: 3000;
+            /* 如果支持 scale 则用更现代的写法 */
+            @supports (transform: scale(0.5)) {
+                #capture-area { zoom: 1; transform: scale(calc(100vw / 800)); margin-top: 0; }
             }
-
-            /* 5. 调整切换按钮 */
-            .toggle-sidebar {
-                padding: 15px 8px;
-                z-index: 2600;
-            }
+            .save-btn { width: auto; left: 20px; right: 20px; bottom: 20px; padding: 15px !important; }
         }
-        /* --- 移动端适配结束 --- */
 
         .section { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
         .section h3 { font-size: 0.95rem; color: #222; margin-top: 0; margin-bottom: 10px; border-left: 5px solid #d44b4b; padding-left: 10px; }
@@ -128,10 +82,10 @@
         }
 
         .pattern-layer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 1; opacity: 0.1; }
-        .pt-dots { background-image: radial-gradient(currentColor 1.5px, transparent 0); background-size: 24px 24px; }
-        .pt-grid { background-image: linear-gradient(currentColor 0.5px, transparent 0.5px), linear-gradient(90deg, currentColor 0.5px, transparent 0.5px); background-size: 35px 35px; }
-        .pt-wave { background-image: radial-gradient(circle at 32.5px -12px, transparent 12px, currentColor 12px, currentColor 14px, transparent 14px); background-size: 65px 65px; }
-        .pt-stars { background-image: radial-gradient(circle at 30px 30px, currentColor 1.5px, transparent 2px), radial-gradient(ellipse 1px 10px at 30px 30px, currentColor 0%, transparent 100%), radial-gradient(ellipse 10px 1px at 30px 30px, currentColor 0%, transparent 100%); background-size: 60px 60px; }
+        .pt-dots { background-image: radial-gradient(var(--primary-color) 1.5px, transparent 0); background-size: 24px 24px; }
+        .pt-grid { background-image: linear-gradient(var(--primary-color) 0.5px, transparent 0.5px), linear-gradient(90deg, var(--primary-color) 0.5px, transparent 0.5px); background-size: 35px 35px; }
+        .pt-wave { background-image: radial-gradient(circle at 32.5px -12px, transparent 12px, var(--primary-color) 12px, var(--primary-color) 14px, transparent 14px); background-size: 65px 65px; }
+        .pt-stars { background-image: radial-gradient(circle at 30px 30px, var(--primary-color) 1.5px, transparent 2px), radial-gradient(ellipse 1px 10px at 30px 30px, var(--primary-color) 0%, transparent 100%), radial-gradient(ellipse 10px 1px at 30px 30px, var(--primary-color) 0%, transparent 100%); background-size: 60px 60px; }
 
         .top-section { display: flex; flex-direction: column; width: 100%; position: relative; z-index: 20; }
         .banner-box { width: 100%; height: auto; position: relative; overflow: hidden; display: none; }
@@ -141,10 +95,10 @@
         .header-area { padding: 50px 75px 20px 75px; writing-mode: horizontal-tb; text-align: left; }
         .ly-typewriter .content-main { border: 1px solid var(--primary-color); margin: 40px 60px; padding: 40px; box-sizing: border-box; }
 
-        .ly-ancient .top-section { flex-direction: row-reverse; justify-content: flex-end; align-items: flex-start; padding: 60px 75px 20px 75px; gap: 40px; }
+        .ly-ancient .top-section { flex-direction: row-reverse; justify-content: flex-start; align-items: flex-start; padding: 60px 75px 20px 75px; gap: 40px; }
         .ly-ancient .header-area { padding: 0; flex-shrink: 0; display: flex; flex-direction: row-reverse; max-width: 300px; }
         .ly-ancient .p-title { writing-mode: vertical-rl; text-orientation: upright; font-size: 2.6rem; letter-spacing: 0.5rem; border-left: 1px solid; padding-left: 20px; line-height: 1.2; }
-        .ly-ancient .p-author { writing-mode: vertical-rl; text-orientation: upright; font-size: 1.1rem; margin-right: 20px; opacity: 0.8; padding-top: 15px; }
+        .ly-ancient .p-author { display: block; writing-mode: vertical-rl; text-orientation: upright; font-size: 1.1rem; margin-right: 20px; opacity: 0.8; padding-top: 15px; }
         .ly-ancient .banner-box { display: block; width: 300px; margin: 0; order: 2; box-shadow: 0 15px 45px rgba(0,0,0,0.35); }
 
         .content-main { padding: 20px 75px 120px 75px; position: relative; z-index: 10; flex-grow: 1; }
@@ -179,13 +133,13 @@
 
     <div class="section">
         <h3>2. 核心内容</h3>
-        <label>文章标题（可选）</label>
-        <textarea id="titleInput" rows="2">在左侧输入标题</textarea>
-        <label>作者署名（可选）</label>
-        <input type="text" id="authorInput" value="在左侧输入作者名">
-        <label>题记（可选）</label>
+        <label>文章标题</label>
+        <textarea id="titleInput" rows="2">在左侧输入框输入标题</textarea>
+        <label>作者署名</label>
+        <input type="text" id="authorInput" value="在左侧输入框输入作者名">
+        <label>题记</label>
         <textarea id="prefaceInput" rows="2"></textarea>
-        <label>作者附言（可选）</label>
+        <label>作者附言</label>
         <textarea id="postscriptInput" rows="2"></textarea>
     </div>
 
@@ -258,6 +212,7 @@
 <div class="toggle-sidebar" onclick="toggleSidebar()">◀<br>收<br>起</div>
 
 <div class="preview-container">
+    <!-- 增加一个 wrapper 专门处理手机端的缩放显示 -->
     <div id="capture-area" class="ly-standard">
         <div class="top-section">
             <div id="bannerBox" class="banner-box">
@@ -277,12 +232,10 @@
                 <div class="p-text" id="p-text" contenteditable="true">
     你好，这里是丐版长文排版器。
     
-    功能目前很少，只能排版长文。支持一键缩进，适配手机屏幕。
-    手机用户可以尝试左右滚动来查看网页。
+    功能目前很少，只能排版长文。支持一键缩进，适配手机屏幕（吗？）
     本排版器支持至多1w5的长文排版，字数过多会因图片过大而无法生成或打开长图。横幅图片尺寸过大或者过于清晰（2k或4k）同样会导致卡顿。
-    不推荐手机用户排版1w字以上的长文，尤其不推荐IOS用户，有可能会无法下载。但试试也无妨。
-    你可以在左边的选项栏中自定义你的排版，一切在预览图上所见即所得，挑完自助后点击右下角的“导出长图”来获得你的长图排版。
-    有任何使用问题，或功能建议，都可以在我的github上留言。
+    你可以在左边的选项栏中自定义你的排版，挑完自助后点击右下角的红色按钮“导出长图”来获得你的长图排版。
+    有任何使用问题或功能建议可以在我的github上留言。
     
     玩得开心！——R
                 </div>
@@ -295,6 +248,7 @@
 <button class="save-btn" onclick="saveAsImage()">导出高清长图</button>
 
 <script>
+    // JS 逻辑保持不变，只需确保缩放不影响 html2canvas 采样
     const palettes = [
         { name: '经典', bg: '#ffffff', text: '#2d3436' },
         { name: '宣纸', bg: '#f4efe1', text: '#3e2723' },
@@ -432,6 +386,7 @@
         btn.innerText = '正在生成...'; btn.disabled = true;
         const area = document.getElementById('capture-area');
         
+        // 关键：导出前暂时移除缩放效果，确保采样正确
         const originalTransform = area.style.transform;
         const originalZoom = area.style.zoom;
         area.style.transform = 'none';
@@ -450,7 +405,7 @@
             link.download = '排版长图_' + Date.now() + '.png';
             link.href = canvas.toDataURL('image/png'); link.click();
         } catch (e) { 
-            alert('导出失败，请缩短文章。如果重复遇到问题，请联系作者。'); 
+            alert('导出失败，请缩短文章。'); 
         } finally {
             area.style.transform = originalTransform;
             area.style.zoom = originalZoom;
