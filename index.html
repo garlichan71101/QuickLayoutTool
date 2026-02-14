@@ -27,16 +27,16 @@
             min-width: var(--sidebar-width); 
             background: #fff; border-right: 1px solid #ddd; 
             overflow-y: auto; padding: 25px; box-sizing: border-box; 
-            z-index: 1000; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            z-index: 2000; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
             position: relative; 
         }
         .sidebar.collapsed { width: 0; min-width: 0; padding: 0; overflow: hidden; opacity: 0; }
         
-        /* 切换按钮 - 优化触摸 */
+        /* 切换按钮 */
         .toggle-sidebar { 
             position: fixed; left: var(--sidebar-width); top: 50%; transform: translateY(-50%); 
             background: #fff; border: 1px solid #ddd; border-left: none; 
-            padding: 25px 10px; cursor: pointer; z-index: 1100; 
+            padding: 25px 10px; cursor: pointer; z-index: 2100; 
             border-radius: 0 12px 12px 0; font-size: 14px; color: #d44b4b; 
             transition: all 0.3s ease; box-shadow: 4px 0 15px rgba(0,0,0,0.2); 
             display: flex; align-items: center; justify-content: center;
@@ -44,11 +44,12 @@
         }
         .sidebar.collapsed + .toggle-sidebar { left: 0; }
 
-        /* --- 修正后的移动端适配核心代码 --- */
+        /* --- 移动端适配核心代码 --- */
         @media screen and (max-width: 768px) {
             :root { --sidebar-width: 300px; } 
 
-            /* 1. 侧边栏改为浮动抽屉 */
+            body { display: block; } /* 移动端取消 flex 布局 */
+
             .sidebar { 
                 position: fixed; 
                 height: 100%; 
@@ -64,46 +65,51 @@
                 min-width: var(--sidebar-width);
                 padding: 25px; 
                 visibility: hidden;
+                opacity: 1 !important;
             }
 
-            /* 2. 修正预览容器，防止溢出并允许垂直滚动 */
             .preview-container { 
-                padding: 40px 0 !important; 
                 width: 100vw;
-                overflow-x: hidden;
-                display: block; 
+                height: 100vh;
+                padding: 40px 0 !important; 
+                overflow-x: hidden; /* 禁止横向滚动 */
+                display: flex; 
+                justify-content: center; /* 水平居中画布 */
+                align-items: flex-start;
+                background: #222;
+                position: absolute;
+                top: 0; left: 0;
             }
 
-            /* 3. 核心：根据屏幕宽度缩放 720px 的画布 */
             #capture-area { 
                 margin: 0 auto;
                 transform-origin: top center;
-                transform: scale(calc((100vw - 20px) / 720));
-                transition: transform 0.3s ease;
+                /* 根据屏幕宽度自动缩放 720px 的内容 */
+                transform: scale(calc((100vw - 30px) / 720)); 
+                flex-shrink: 0;
+                /* 消除缩放产生的底部巨大留白 */
+                margin-bottom: -400px; 
             }
 
-            /* 4. 底部按钮适配 */
             .save-btn { 
-                width: calc(100% - 40px); 
-                left: 20px; 
+                width: auto; 
+                left: auto;
                 right: 20px; 
                 bottom: 20px; 
-                padding: 15px !important; 
-                text-align: center;
+                padding: 12px 25px !important; 
+                font-size: 14px;
             }
 
-            /* 5. 调整切换按钮在移动端的位置 */
             .toggle-sidebar {
                 padding: 15px 8px;
             }
             .sidebar.collapsed + .toggle-sidebar { left: 0; }
         }
-        /* --- 移动端适配结束 --- */
 
         .section { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
         .section h3 { font-size: 0.95rem; color: #222; margin-top: 0; margin-bottom: 10px; border-left: 5px solid #d44b4b; padding-left: 10px; }
         label { display: block; margin-bottom: 8px; font-size: 0.8rem; font-weight: bold; color: #555; }
-        input, textarea, select { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; font-size: 16px; /* 防止 iOS 自动放大 */}
+        input, textarea, select { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; font-size: 16px; }
         
         input[type="range"] { border: none; padding: 0; height: 20px; }
 
@@ -150,7 +156,7 @@
 
         .toolbar { display: flex; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
         .toolbar button { padding: 8px 12px; background: #eee; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
-        .save-btn { position: fixed; bottom: 30px; right: 30px; background: #d44b4b; color: white; border: none; padding: 18px 50px; border-radius: 50px; cursor: pointer; font-weight: bold; font-size: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 2000; }
+        .save-btn { position: fixed; bottom: 30px; right: 30px; background: #d44b4b; color: white; border: none; padding: 18px 50px; border-radius: 50px; cursor: pointer; font-weight: bold; font-size: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 3000; }
         .clear-btn { background: #666; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-top: 5px; }
     </style>
 </head>
@@ -174,9 +180,9 @@
     <div class="section">
         <h3>2. 核心内容</h3>
         <label>文章标题（可选）</label>
-        <textarea id="titleInput" rows="2">在左侧输入标题</textarea>
+        <textarea id="titleInput" rows="2">在左侧输入框输入标题</textarea>
         <label>作者署名（可选）</label>
-        <input type="text" id="authorInput" value="在左侧输入作者名">
+        <input type="text" id="authorInput" value="在左侧输入框输入作者名">
         <label>题记（可选）</label>
         <textarea id="prefaceInput" rows="2"></textarea>
         <label>作者附言（可选）</label>
@@ -271,10 +277,10 @@
                 <div class="p-text" id="p-text" contenteditable="true">
     你好，这里是丐版长文排版器。
     
-    功能目前很少，只能排版长文。支持一键缩进，适配手机屏幕（吗？）
-    哎呦我真没招了这个屏幕适配，之后会更新的。
+    功能目前很少，只能排版长文。支持一键缩进，正在尝试适配手机屏幕。
     本排版器支持至多1w5的长文排版，字数过多会因图片过大而无法生成或打开长图。横幅图片尺寸过大或者过于清晰（2k或4k）同样会导致卡顿。
     你可以在左边的选项栏中自定义你的排版，挑完自助后点击右下角的红色按钮“导出长图”来获得你的长图排版。
+    手机端不推荐导入1w字以上文本，尤其是IOS，但是试试也无妨。
     有任何使用问题或功能建议可以在我的github上留言。
     
     玩得开心！——R
@@ -285,7 +291,7 @@
     </div>
 </div>
 
-<button class="save-btn" onclick="saveAsImage()">导出长图</button>
+<button class="save-btn" onclick="saveAsImage()">导出高清长图</button>
 
 <script>
     const palettes = [
@@ -306,6 +312,18 @@
         const btn = document.querySelector('.toggle-sidebar');
         sidebar.classList.toggle('collapsed');
         btn.innerHTML = sidebar.classList.contains('collapsed') ? '▶<br>展<br>开' : '◀<br>收<br>起';
+        
+        // 移动端优化：展开时点击预览区自动收起
+        if (window.innerWidth <= 768 && !sidebar.classList.contains('collapsed')) {
+            const closeMask = () => {
+                sidebar.classList.add('collapsed');
+                btn.innerHTML = '▶<br>展<br>开';
+                document.querySelector('.preview-container').removeEventListener('click', closeMask);
+            };
+            setTimeout(() => {
+                document.querySelector('.preview-container').addEventListener('click', closeMask);
+            }, 100);
+        }
     }
 
     function applyIndent(shouldIndent) {
@@ -426,9 +444,9 @@
         const area = document.getElementById('capture-area');
         
         const originalTransform = area.style.transform;
-        const originalZoom = area.style.zoom;
+        const originalMargin = area.style.marginBottom;
         area.style.transform = 'none';
-        area.style.zoom = '1';
+        area.style.marginBottom = '0';
 
         try {
             document.querySelector('.preview-container').scrollTop = 0;
@@ -446,8 +464,8 @@
             alert('导出失败，请缩短文章。'); 
         } finally {
             area.style.transform = originalTransform;
-            area.style.zoom = originalZoom;
-            btn.innerText = '导出长图'; btn.disabled = false;
+            area.style.marginBottom = originalMargin;
+            btn.innerText = '导出高清长图'; btn.disabled = false;
         }
     }
 </script>
