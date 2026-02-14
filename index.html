@@ -46,9 +46,9 @@
 
         /* --- 修正后的移动端适配核心代码 --- */
         @media screen and (max-width: 768px) {
-            :root { --sidebar-width: 300px; } 
+            :root { --sidebar-width: 280px; } 
 
-            /* 1. 侧边栏改为浮动抽屉 */
+            /* 1. 侧边栏完全悬浮，不挤压主视图空间 */
             .sidebar { 
                 position: fixed; 
                 height: 100%; 
@@ -57,31 +57,34 @@
                 transform: translateX(0);
                 opacity: 1 !important;
                 visibility: visible;
+                z-index: 2500;
             }
             .sidebar.collapsed { 
                 transform: translateX(-100%); 
-                width: var(--sidebar-width); 
-                min-width: var(--sidebar-width);
-                padding: 25px; 
                 visibility: hidden;
             }
 
-            /* 2. 修正预览容器，允许横向滚动并增加内边距 */
+            /* 2. 核心修复：取消 flex 居中，改为 block 布局配合 overflow-x */
             .preview-container { 
-                padding: 40px 15px !important; 
+                padding: 40px 0 !important; 
                 width: 100vw;
-                overflow-x: auto; /* 修改：允许左右滚动 */
-                -webkit-overflow-scrolling: touch; /* 优化iOS滚动体验 */
-                display: block; 
-                box-sizing: border-box;
+                height: 100vh;
+                display: block !important; /* 必须改为 block 以禁用 justify-content:center */
+                overflow-x: auto !important; /* 允许横向滚动 */
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                position: relative;
+                text-align: left; /* 确保内容从左侧开始 */
             }
 
-            /* 3. 核心：修改缩放中心为左上角，彻底解决左侧无法滚动问题 */
+            /* 3. 核心修复：调整原点与间距，确保不被左侧遮挡 */
             #capture-area { 
-                margin: 0; /* 修改：由自动居中改为靠左对齐 */
-                transform-origin: top left; /* 修改：从左上角缩放，防止左侧溢出到屏幕负坐标区 */
-                transform: scale(calc((100vw - 30px) / 720));
+                margin: 0 20px !important; /* 给左侧留出一点安全边距 */
+                transform-origin: top left !important; /* 必须从左上角缩放 */
+                /* 缩放比例改为固定 0.8 或根据宽度，但保证其宽度大于屏幕从而可以滚动 */
+                transform: scale(0.8); 
                 transition: transform 0.3s ease;
+                display: block;
             }
 
             /* 4. 底部按钮适配 */
@@ -92,13 +95,14 @@
                 bottom: 20px; 
                 padding: 15px !important; 
                 text-align: center;
+                z-index: 3000;
             }
 
-            /* 5. 调整切换按钮在移动端的位置 */
+            /* 5. 调整切换按钮 */
             .toggle-sidebar {
                 padding: 15px 8px;
+                z-index: 2600;
             }
-            .sidebar.collapsed + .toggle-sidebar { left: 0; }
         }
         /* --- 移动端适配结束 --- */
 
