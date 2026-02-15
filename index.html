@@ -167,8 +167,21 @@
         .ly-ancient .top-section { flex-direction: row-reverse; justify-content: flex-start; align-items: flex-start; padding: 60px 75px 20px 75px; gap: 30px; }
         .ly-ancient .header-area { padding: 0; flex-shrink: 0; display: flex; flex-direction: row-reverse; max-width: 280px; }
         .ly-ancient .p-title { writing-mode: vertical-rl; text-orientation: upright; font-size: 2.8rem; letter-spacing: 0.5rem; border-left: 1px solid; padding-left: 20px; line-height: 1.2; display: block; }
-        .ly-ancient .p-author { display: block; writing-mode: vertical-rl; text-orientation: upright; font-size: 0.9rem; font-style: italic; margin-right: 15px; margin-left: 20px; opacity: 0.8; padding-top: 15px; width: 1.2em; word-break: break-all; }
+        .ly-ancient .p-author { display: block; writing-mode: vertical-rl; text-orientation: upright; font-size: 0.9rem; font-style: italic; margin-right: 15px; margin-left: 15px; opacity: 0.8; padding-top: 15px; width: 1.2em; word-break: break-all; }
         .ly-ancient .banner-box { display: block; width: 240px; margin: 0; order: 2; box-shadow: 0 15px 45px rgba(0,0,0,0.35); }
+
+        /* 新增：文章元数据样式（字数/阅读时间） */
+        .p-meta { font-size: 0.75rem; opacity: 0.5; margin-top: 8px; font-style: normal; }
+        .ly-ancient .p-meta { 
+            writing-mode: vertical-rl; 
+            text-orientation: upright; 
+            margin-top: 0; 
+            margin-right: 10px; 
+            padding-top: 15px;
+            height: fit-content;
+            border-right: 1px solid rgba(0,0,0,0.1);
+            padding-right: 5px;
+        }
 
         .content-main { padding: 40px 75px 120px 75px; position: relative; z-index: 10; flex-grow: 1; }
         .p-title { font-size: calc(var(--font-size) * 2.2); margin: 0; font-weight: 700; line-height: 1.2; white-space: pre-wrap; word-break: break-word; }
@@ -206,6 +219,12 @@
         <textarea id="titleInput" rows="2">左侧输入标题</textarea>
         <label>作者署名（可选）</label>
         <input type="text" id="authorInput" value="左侧输入作者名">
+        
+        <label style="display: flex; align-items: center; cursor: pointer;">
+            <input type="checkbox" id="metaToggle" style="width: auto; margin-bottom: 0; margin-right: 8px;"> 显示字数与阅读时间
+        </label>
+        <br>
+
         <label>题记（可选）</label>
         <textarea id="prefaceInput" rows="2"></textarea>
         <label>作者附言（可选）</label>
@@ -228,7 +247,7 @@
             <option value="'Lora'">Lora</option>
             <option value="'Dancing Script'">Dancing Script</option>
             <option value="'Instrument Serif'">Instrument</option>
-            <option value="'Red Hat Text'">RedHat</option>
+            <option value="'Red Hat Text'"></option>
         </select>
         <label>字号调整</label>
         <select id="fontSizeSelect">
@@ -296,6 +315,7 @@
             <div class="header-area">
                 <h1 class="p-title" id="p-title"></h1>
                 <span class="p-author" id="p-author"></span>
+                <div class="p-meta" id="p-meta"></div>
             </div>
         </div>
         
@@ -306,21 +326,22 @@
     你好，这里是丐版长文排版器。
     
     功能目前很少，只能排版长文，适用于那些不想给软件充会员还想随时随地生成能看的长图的写手。
+    出现在这里的每一个字都可以直接编辑或删除，
     本页面是静态网页，不会储存任何数据，千万不要把它当码字软件！
-    目前手机可以使用本工具，好耶！
     本排版器支持至多1w5的长文排版，字数过多会因图片过大而无法生成/打开长图。横幅图片尺寸过大或者过于清晰（2k或4k）同样会导致卡顿。
     手机用户推荐排版1w字以下的文章，尤其是IOS用户，有可能会无法生成。但试试也无妨。
     你可以在左边的选项栏中自定义你的排版，挑完自助后点击右下角的“导出长图”来获得你的长图排版。
-    有任何使用问题，或功能建议，可以在我的github上留言。
+    使用期间有任何问题反馈，或者功能建议，可以在我的github上留言。
 
     已知的问题：
-    1.“古雅”排版选项中，作者名如果太长会从竖排变成乱排。
-    2.暗色主题下底纹的预览图与成图颜色不一致。
+    1.“古雅”排版选项中，作者名有概率从竖排变成乱排。
+    2.切换中文字体时会加载很慢，导出长图是默认字体。
     解决方法：
-    1.别取那么长的名字。
-    2.等我想到解决办法（悲）
+    1.别取很长的笔名，概率问题我正在尝试解决（悲）
+    2.html就这样，预览图里的文字全部变化后再导出长图即可。
+
     
-    删除所有文字来开始排版，玩得开心！——R
+    删除Readme，粘贴你的作品来开始排版，玩得开心！——R
                 </div>
                 <div class="p-postscript" id="p-postscript"></div>
             </div>
@@ -359,6 +380,7 @@
             return shouldIndent && cleanLine.length > 0 ? '　　' + cleanLine : cleanLine;
         });
         textEl.innerText = newLines.join('\n');
+        updateMetaData(); // 更新字数
     }
 
     function setSpacing(type) {
@@ -369,6 +391,7 @@
         btns[type-1].classList.add('active');
         text = type === 1 ? text.replace(/\n\n+/g, '\n') : text.replace(/\n+/g, '\n\n');
         textEl.innerText = text;
+        updateMetaData(); // 更新字数
     }
 
     function formatAncientTitle(text) {
@@ -381,6 +404,22 @@
             if (shouldBreak && i < cleanText.length - 1) { result += "<br>"; lineLength = 0; }
         }
         return result;
+    }
+
+    // 新增：更新字数与阅读时间
+    function updateMetaData() {
+        const text = document.getElementById('p-text').innerText || "";
+        const count = text.replace(/\s/g, "").length; // 不计空格
+        const minutes = Math.ceil(count / 400) || 1; // 假设阅读速度400字/分
+        const metaEl = document.getElementById('p-meta');
+        const isEnabled = document.getElementById('metaToggle').checked;
+        
+        if (isEnabled) {
+            metaEl.innerText = `全文计 ${count} 字 / 预计阅读 ${minutes} 分钟`;
+            metaEl.style.display = 'block';
+        } else {
+            metaEl.style.display = 'none';
+        }
     }
 
     window.onload = () => {
@@ -401,10 +440,9 @@
                 const darkThemes = ['黑暗', '森林', '月夜', '古铜'];
     
                 if (darkThemes.includes(p.name)) {
-                    // 修改点：不再使用 filter，而是给父级或自身添加一个标识类
                     area.classList.add('dark-mode'); 
-                    patternBox.style.filter = 'none'; // 清除滤镜，html2canvas 才能正常工作
-                    patternBox.style.opacity = '0.15'; // 深色模式下可以稍微调高一点透明度
+                    patternBox.style.filter = 'none'; 
+                    patternBox.style.opacity = '0.15'; 
                 } else {
                     area.classList.remove('dark-mode');
                     patternBox.style.filter = 'none';
@@ -426,11 +464,17 @@
                 target.innerText = input.value;
                 target.style.display = input.value.trim() ? 'block' : 'none';
             });
+            updateMetaData();
         };
 
         ['titleInput', 'authorInput', 'prefaceInput', 'postscriptInput'].forEach(id => {
             document.getElementById(id).oninput = syncInputs;
         });
+
+        // 监听正文变化
+        document.getElementById('p-text').oninput = updateMetaData;
+        // 监听开关变化
+        document.getElementById('metaToggle').onchange = updateMetaData;
 
         document.querySelectorAll('#layoutSelect .btn-opt').forEach(btn => {
             btn.onclick = () => {
