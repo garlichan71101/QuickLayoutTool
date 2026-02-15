@@ -127,28 +127,36 @@
 
         .pattern-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; opacity: 0.1; transition: filter 0.3s, opacity 0.3s; }
         
+        /* 原有样式保持不变 */
         .pt-dots { background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='1.5' cy='1.5' r='1.5' fill='%23000'/%3E%3C/svg%3E"); }
         .pt-grid { background-image: url("data:image/svg+xml,%3Csvg width='35' height='35' viewBox='0 0 35 35' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 35 0 L 0 0 0 35' fill='none' stroke='%23000' stroke-width='0.5'/%3E%3C/svg%3E"); }
         .pt-wave { background-image: url("data:image/svg+xml,%3Csvg width='65' height='65' viewBox='0 0 65 65' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 32.5 Q 16.25 15 32.5 32.5 T 65 32.5' fill='none' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E"); }
         .pt-stars { background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 20 L30 40 M20 30 L40 30' stroke='%23000' stroke-width='1'/%3E%3Ccircle cx='30' cy='30' r='1.5' fill='%23000'/%3E%3C/svg%3E"); }
 
+        /* 新增：深色模式专用的白色底纹 (将 %23000 替换为 %23fff) */
+        .dark-mode .pt-dots { background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='1.5' cy='1.5' r='1.5' fill='%23fff'/%3E%3C/svg%3E"); }
+        .dark-mode .pt-grid { background-image: url("data:image/svg+xml,%3Csvg width='35' height='35' viewBox='0 0 35 35' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 35 0 L 0 0 0 35' fill='none' stroke='%23fff' stroke-width='0.5'/%3E%3C/svg%3E"); }
+        .dark-mode .pt-wave { background-image: url("data:image/svg+xml,%3Csvg width='65' height='65' viewBox='0 0 65 65' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 32.5 Q 16.25 15 32.5 32.5 T 65 32.5' fill='none' stroke='%23fff' stroke-width='1'/%3E%3C/svg%3E"); }
+        .dark-mode .pt-stars { background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 20 L30 40 M20 30 L40 30' stroke='%23fff' stroke-width='1'/%3E%3Ccircle cx='30' cy='30' r='1.5' fill='%23fff'/%3E%3C/svg%3E"); }
+       
         .top-section { display: flex; flex-direction: column; width: 100%; position: relative; z-index: 20; box-sizing: border-box; }
         .banner-box { width: 100%; height: auto; position: relative; overflow: hidden; display: none; }
         #p-banner { width: 100%; display: block; }
         #bannerOverlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
 
         .header-area { padding: 50px 75px 20px 75px; writing-mode: horizontal-tb; text-align: left; }
+        .ly-standard .header-area { text-align: center; }
         .ly-typewriter .content-main { border: 1px solid var(--primary-color); margin: 40px 60px; padding: 40px; box-sizing: border-box; }
 
         .ly-ancient .top-section { flex-direction: row-reverse; justify-content: flex-start; align-items: flex-start; padding: 60px 75px 20px 75px; gap: 30px; }
         .ly-ancient .header-area { padding: 0; flex-shrink: 0; display: flex; flex-direction: row-reverse; max-width: 280px; }
-        .ly-ancient .p-title { writing-mode: vertical-rl; text-orientation: upright; font-size: 2.6rem; letter-spacing: 0.5rem; border-left: 1px solid; padding-left: 20px; line-height: 1.2; display: block; }
-        .ly-ancient .p-author { display: block; writing-mode: vertical-rl; text-orientation: upright; font-size: 1.1rem; margin-right: 0; margin-left: 20px; opacity: 0.8; padding-top: 15px; width: 1.2em; word-break: break-all; }
+        .ly-ancient .p-title { writing-mode: vertical-rl; text-orientation: upright; font-size: 2.8rem; letter-spacing: 0.5rem; border-left: 1px solid; padding-left: 20px; line-height: 1.2; display: block; }
+        .ly-ancient .p-author { display: block; writing-mode: vertical-rl; text-orientation: upright; font-size: 0.9rem; font-style: italic; margin-right: 0; margin-left: 20px; opacity: 0.8; padding-top: 15px; width: 1.2em; word-break: break-all; }
         .ly-ancient .banner-box { display: block; width: 240px; margin: 0; order: 2; box-shadow: 0 15px 45px rgba(0,0,0,0.35); }
 
-        .content-main { padding: 20px 75px 120px 75px; position: relative; z-index: 10; flex-grow: 1; }
-        .p-title { font-size: calc(var(--font-size) * 1.8); margin: 0; font-weight: 700; line-height: 1.4; white-space: pre-wrap; word-break: break-word; }
-        .p-author { display: block; margin-top: 15px; font-size: 1.1rem; opacity: 0.8; }
+        .content-main { padding: 40px 75px 120px 75px; position: relative; z-index: 10; flex-grow: 1; }
+        .p-title { font-size: calc(var(--font-size) * 2.2); margin: 0; font-weight: 700; line-height: 1.2; white-space: pre-wrap; word-break: break-word; }
+        .p-author { display: block; margin-top: 15px; font-size: 0.85rem; font-style: italic; opacity: 0.8; }
         .p-preface { border-left: 4px solid; padding: 15px 25px; margin: 40px 0; font-style: italic; background: rgba(0,0,0,0.03); white-space: pre-wrap; word-break: break-all; }
         .p-text { font-size: var(--font-size); line-height: var(--line-height); text-align: justify; outline: none; white-space: pre-wrap; position: relative; z-index: 10; }
         .p-postscript { margin-top: 60px; padding-top: 30px; border-top: 1px dashed; font-size: 1rem; opacity: 0.7; }
@@ -365,16 +373,20 @@
                 document.querySelectorAll('#paletteSelect .btn-opt').forEach(x => x.classList.remove('active'));
                 b.classList.add('active');
                 const area = document.getElementById('capture-area');
-                area.style.backgroundColor = p.bg; area.style.color = p.text;
+                area.style.backgroundColor = p.bg; 
+                area.style.color = p.text;
                 document.documentElement.style.setProperty('--primary-color', p.text);
-                
+    
                 const patternBox = document.getElementById('patternBox');
                 const darkThemes = ['黑暗', '森林', '月夜', '古铜'];
+    
                 if (darkThemes.includes(p.name)) {
-                    patternBox.style.filter = 'invert(1) brightness(2)';
-                    // 核心修改：将深色主题透明度调整为 10%
-                    patternBox.style.opacity = '0.1';
+                    // 修改点：不再使用 filter，而是给父级或自身添加一个标识类
+                    area.classList.add('dark-mode'); 
+                    patternBox.style.filter = 'none'; // 清除滤镜，html2canvas 才能正常工作
+                    patternBox.style.opacity = '0.15'; // 深色模式下可以稍微调高一点透明度
                 } else {
+                    area.classList.remove('dark-mode');
                     patternBox.style.filter = 'none';
                     patternBox.style.opacity = '0.1';
                 }
@@ -465,7 +477,6 @@
                     const clonedPattern = clonedDoc.getElementById('patternBox');
                     if (clonedPattern) {
                         clonedPattern.style.height = area.scrollHeight + 'px';
-                        clonedPattern.style.filter = getComputedStyle(document.getElementById('patternBox')).filter;
                     }
                 }
             });
