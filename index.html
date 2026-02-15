@@ -6,7 +6,7 @@
     <title>丐版长文排版器</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont@1.1.0/style.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Noto+Serif+SC:wght@400;700&family=Inter:wght@400;700&family=Lora:ital,wght@0,400;0,700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Noto+Serif+SC:wght@400;700&family=Inter:wght@400;700&family=Lora:ital,wght@0,400;0,700&family=Dancing+Script:wght@700&family=Instrument+Serif：ital,wght@400;700&family=Red+Hat+Text:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -19,6 +19,22 @@
             --sidebar-width: 380px;
         }
 
+        @font-face {
+            font-family: 'Zhisong'; /* 你给字体起的名字 */
+            src: url('fonts/LXGWZhiSongMN.ttf') format('truetype'); /* 确保路径和文件名大小写完全一致 */
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap; /* 确保字体加载时不会导致文字消失 */
+        }
+
+        @font-face {
+            font-family: 'Penshuti'; /* 你给字体起的名字 */
+            src: url('fonts/YshiPenShutiCL-Regular.ttf') format('truetype'); /* 确保路径和文件名大小写完全一致 */
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap; /* 确保字体加载时不会导致文字消失 */
+        }
+        
         body { margin: 0; font-family: 'Noto Sans SC', sans-serif; background: #111; display: flex; height: 100vh; overflow: hidden; color: #333; }
 
         .sidebar { 
@@ -151,7 +167,7 @@
         .ly-ancient .top-section { flex-direction: row-reverse; justify-content: flex-start; align-items: flex-start; padding: 60px 75px 20px 75px; gap: 30px; }
         .ly-ancient .header-area { padding: 0; flex-shrink: 0; display: flex; flex-direction: row-reverse; max-width: 280px; }
         .ly-ancient .p-title { writing-mode: vertical-rl; text-orientation: upright; font-size: 2.8rem; letter-spacing: 0.5rem; border-left: 1px solid; padding-left: 20px; line-height: 1.2; display: block; }
-        .ly-ancient .p-author { display: block; writing-mode: vertical-rl; text-orientation: upright; font-size: 0.9rem; font-style: italic; margin-right: 0; margin-left: 20px; opacity: 0.8; padding-top: 15px; width: 1.2em; word-break: break-all; }
+        .ly-ancient .p-author { display: block; writing-mode: vertical-rl; text-orientation: upright; font-size: 0.9rem; font-style: italic; margin-right: 15px; margin-left: 20px; opacity: 0.8; padding-top: 15px; width: 1.2em; word-break: break-all; }
         .ly-ancient .banner-box { display: block; width: 240px; margin: 0; order: 2; box-shadow: 0 15px 45px rgba(0,0,0,0.35); }
 
         .content-main { padding: 40px 75px 120px 75px; position: relative; z-index: 10; flex-grow: 1; }
@@ -203,12 +219,16 @@
             <option value="'Noto Sans SC'">思源黑体</option>
             <option value="'Noto Serif SC'">思源宋体</option>
             <option value="'LXGW WenKai Screen'">霞鹜文楷</option>
+            <option value="'Zhisong'">霞鹜致宋</option>
+            <option value="'Penshuti'">Y式笔书</option>
         </select>
         <label>英文字体</label>
         <select id="enFontSelect">
             <option value="'Inter'">Inter</option>
             <option value="'Lora'">Lora</option>
             <option value="'Dancing Script'">Dancing Script</option>
+            <option value="'Instrument Serif'">Instrument</option>
+            <option value="'Red Hat Text'">RedHat</option>
         </select>
         <label>字号调整</label>
         <select id="fontSizeSelect">
