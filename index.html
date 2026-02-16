@@ -181,6 +181,30 @@
         .ly-standard .header-area { text-align: center; }
         .ly-typewriter .content-main { border: 1px solid var(--primary-color); margin: 40px 60px; padding: 40px; box-sizing: border-box; }
 
+        /* --- 新增：复古样式 --- */
+        .ly-retro .header-area { text-align: left; padding: 60px 75px 20px 75px; }
+        .ly-retro .p-title {
+            display: inline-block;
+            font-weight: 900;
+            font-style: italic;
+            padding: 12px 25px;
+            border: 5px solid var(--primary-color);
+            box-shadow: 10px 10px 0px var(--primary-color);
+            line-height: 1.1;
+            margin-bottom: 40px;
+            word-break: break-all;
+        }
+        .ly-retro .p-author {
+            display: block;
+            font-size: 1.6rem;
+            font-weight: 700;
+            font-style: italic;
+            text-shadow: 6px 6px 0px rgba(0,0,0,0.15);
+            opacity: 1;
+            margin-top: 10px;
+        }
+        .dark-mode.ly-retro .p-author { text-shadow: 6px 6px 0px rgba(255,255,255,0.1); }
+
         .ly-ancient .top-section { flex-direction: row-reverse; justify-content: flex-start; align-items: flex-start; padding: 60px 75px 20px 75px; gap: 30px; }
         .ly-ancient .header-area { padding: 0; flex-shrink: 0; display: flex; flex-direction: row-reverse; max-width: 280px; align-items: flex-start; }
         .ly-ancient .p-title { writing-mode: vertical-rl; text-orientation: upright; font-size: 2.8rem; letter-spacing: 0.5rem; border-left: 1px solid; padding-left: 20px; line-height: 1.2; display: block; }
@@ -305,6 +329,7 @@
             <div class="btn-opt active" data-ly="ly-standard">简约</div>
             <div class="btn-opt" data-ly="ly-ancient">古雅</div>
             <div class="btn-opt" data-ly="ly-typewriter">信件</div>
+            <div class="btn-opt" data-ly="ly-retro">复古</div>
         </div>
         <br>
         <div class="grid-options" id="paletteSelect"></div>
