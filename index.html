@@ -375,7 +375,8 @@
     3.简约排版的标题终于改成居中显示了
     4.修复了古雅排版中作者名与字数统计有概率变成横排的问题。
     5.新增2个新浅色主题，2个新深色主题。
-    6.新增3个底纹。
+    6.新增3个底纹选项。
+    7.修复了【】字符渲染时会重叠的问题。
 
     已知问题：
     1.切换字体时有概率会回到默认字体。
@@ -618,6 +619,25 @@
                 height: area.scrollHeight,
                 windowHeight: area.scrollHeight,
                 onclone: (clonedDoc) => {
+                    const clonedText = clonedDoc.getElementById('p-text');
+                    if (clonedText) {
+                        // 1. 强制保留两端对齐
+                        clonedText.style.textAlign = 'justify';
+                        
+                        // 2. 终极方案：物理隔离法
+                        // 将所有的 【 】 包装在 inline-block 的 span 里，并强行设置宽度为 1em（即一个完整汉字的宽度）
+                        // 这样 html2canvas 就会把它当成一个“方块”来排版，绝对无法被后面的汉字重叠
+                        let rawHtml = clonedText.innerHTML;
+                        const fixedHtml = rawHtml
+                            .replace(/【/g, '<span style="display:inline-block; width:1em; text-align:center; vertical-align: baseline;">【</span>')
+                            .replace(/】/g, '<span style="display:inline-block; width:1em; text-align:center; vertical-align: baseline;">】</span>');
+                        clonedText.innerHTML = fixedHtml;
+
+                        // 3. 辅助修正：防止某些浏览器依然计算错误
+                        clonedText.style.fontVariantLigatures = 'none';
+                        clonedText.style.fontFeatureSettings = '"kern" 0, "palt" 0, "vpal" 0, "chws" 0';
+                    }
+                    
                     const clonedPattern = clonedDoc.getElementById('patternBox');
                     if (clonedPattern) {
                         clonedPattern.style.height = area.scrollHeight + 'px';
