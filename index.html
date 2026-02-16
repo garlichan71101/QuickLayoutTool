@@ -165,23 +165,39 @@
         .ly-typewriter .content-main { border: 1px solid var(--primary-color); margin: 40px 60px; padding: 40px; box-sizing: border-box; }
 
         .ly-ancient .top-section { flex-direction: row-reverse; justify-content: flex-start; align-items: flex-start; padding: 60px 75px 20px 75px; gap: 30px; }
-        .ly-ancient .header-area { padding: 0; flex-shrink: 0; display: flex; flex-direction: row-reverse; max-width: 280px; }
+        .ly-ancient .header-area { padding: 0; flex-shrink: 0; display: flex; flex-direction: row-reverse; max-width: 280px; align-items: flex-start; }
         .ly-ancient .p-title { writing-mode: vertical-rl; text-orientation: upright; font-size: 2.8rem; letter-spacing: 0.5rem; border-left: 1px solid; padding-left: 20px; line-height: 1.2; display: block; }
-        .ly-ancient .p-author { display: block; writing-mode: vertical-rl; text-orientation: upright; font-size: 0.9rem; font-style: italic; margin-right: 15px; margin-left: 15px; opacity: 0.8; padding-top: 15px; width: 1.2em; word-break: break-all; }
+        
+        /* 最终修复：古雅模式作者名对齐逻辑 */
+        .ly-ancient .p-author {
+            display: block;
+            font-size: 0.9rem;
+            font-style: italic;
+            margin: 0 15px;
+            padding-top: 15px; /* 用于微调与标题的顶部对齐 */
+            opacity: 0.8;
+            line-height: 1.1; /* 控制行间距 */
+            text-align: center;
+        }
+
         .ly-ancient .banner-box { display: block; width: 240px; margin: 0; order: 2; box-shadow: 0 15px 45px rgba(0,0,0,0.35); }
 
         /* 新增：文章元数据样式（字数/阅读时间） */
         .p-meta { font-size: 0.75rem; opacity: 0.5; margin-top: 8px; font-style: normal; }
+        /* 找到 .ly-ancient .p-meta 并替换为： */
         .ly-ancient .p-meta { 
-            writing-mode: vertical-rl; 
-            text-orientation: upright; 
-            margin-top: 0; 
-            margin-right: 10px; 
-            padding-top: 15px;
-            height: fit-content;
-            border-right: 1px solid rgba(0,0,0,0.1);
-            padding-right: 5px;
-        }
+        writing-mode: horizontal-tb !important; 
+        width: 1.2em !important;
+        text-align: center;
+        margin-top: 0; 
+        margin-right: 10px; 
+        padding-top: 15px;
+        height: fit-content;
+        border-right: 1px solid rgba(0,0,0,0.1);
+        padding-right: 5px;
+        font-size: 0.75rem;
+        line-height: 1.2;
+    }
 
         .content-main { padding: 40px 75px 120px 75px; position: relative; z-index: 10; flex-grow: 1; }
         .p-title { font-size: calc(var(--font-size) * 2.2); margin: 0; font-weight: 700; line-height: 1.2; white-space: pre-wrap; word-break: break-word; }
@@ -314,7 +330,7 @@
             </div>
             <div class="header-area">
                 <h1 class="p-title" id="p-title"></h1>
-                <span class="p-author" id="p-author"></span>
+                <div class="p-author" id="p-author"></div>
                 <div class="p-meta" id="p-meta"></div>
             </div>
         </div>
@@ -326,25 +342,24 @@
     你好，这里是丐版长文排版器。
     
     功能目前很少，只能排版长文，适用于那些不想给软件充会员还想随时随地生成能看的长图的写手。
-    出现在这里的每一个字都可以直接编辑或删除，
-    本页面是静态网页，不会储存任何数据，千万不要把它当码字软件！
-    本排版器支持至多1w5的长文排版，字数过多会因图片过大而无法生成/打开长图。横幅图片尺寸过大或者过于清晰（2k或4k）同样会导致卡顿。
+    出现在这里的每一个字都可以直接编辑或删除，试着删除这一行吧！
+    本页面是静态网页，【不会】储存任何数据，千万不要把它当码字软件。
+    本工具支持至多1w5的长文排版，字数过多会因图片过大而无法生成/打开长图。横幅图片尺寸过大或者过于清晰（2k或4k）同样会导致卡顿。
     手机用户推荐排版1w字以下的文章，尤其是IOS用户，有可能会无法生成。但试试也无妨。
     你可以在左边的选项栏中自定义你的排版，挑完自助后点击右下角的“导出长图”来获得你的长图排版。
     使用期间有任何问题反馈，或者功能建议，可以在我的github上留言。
 
-    26.2.15更新：
+    26.2.16更新：
     1.新增字数统计与预计阅读时长功能
     2.新增2个中文字体，2个英文字体
     3.简约排版的标题终于改成居中显示了
+    4.修复了古雅排版中作者名与字数统计有概率变成横排的问题。
+    5.新增2个新浅色主题，2个新深色主题。
 
-    已知的问题：
-    1.“古雅”排版选项中，作者名有概率从竖排变成乱排。
-    2.切换中文字体时会加载很慢，导出长图是默认字体。
+    已知问题：
+    1.切换字体时有概率会回到默认字体。
     解决方法：
-    1.别取很长的笔名，概率问题我正在尝试解决（悲）
-    2.html就这样，预览图里的文字全部变化后再导出长图即可。
-
+    2.等1分钟还是没变化刷新一下网页，大概率在下载字体文件。
     
     删除Readme，粘贴你的作品来开始排版，玩得开心！——R
                 </div>
@@ -367,7 +382,11 @@
         { name: '黑暗', bg: '#1a1a1b', text: '#d1d1d1' },
         { name: '森林', bg: '#102018', text: '#a5b5ad' },
         { name: '月夜', bg: '#0f172a', text: '#94a3b8' },
-        { name: '古铜', bg: '#2d241e', text: '#c5b3a3' }
+        { name: '古铜', bg: '#2d241e', text: '#c5b3a3' },
+        { name: '海洋', bg: '#cbe9fe', text: '#005493' }, 
+        { name: '微风', bg: '#dcf2f0', text: '#3a5e5a' },         
+        { name: '玫瑰', bg: '#0d0202', text: '#b91d1d' },
+        { name: '大地', bg: '#54463d', text: '#dbd3c9' }
     ];
 
     function toggleSidebar() {
@@ -414,13 +433,28 @@
     // 新增：更新字数与阅读时间
     function updateMetaData() {
         const text = document.getElementById('p-text').innerText || "";
-        const count = text.replace(/\s/g, "").length; // 不计空格
-        const minutes = Math.ceil(count / 400) || 1; // 假设阅读速度400字/分
+        const count = text.replace(/\s/g, "").length; 
+        const minutes = Math.ceil(count / 400) || 1; 
         const metaEl = document.getElementById('p-meta');
         const isEnabled = document.getElementById('metaToggle').checked;
         
         if (isEnabled) {
-            metaEl.innerText = `全文计 ${count} 字 / 预计阅读 ${minutes} 分钟`;
+            let metaText = `全文计 ${count} 字 / 预计阅读 ${minutes} 分钟`;
+            const isAncient = document.getElementById('capture-area').classList.contains('ly-ancient');
+
+            if (isAncient) {
+                // 古雅模式：不旋转，全员块级化竖向堆叠
+                metaEl.innerHTML = metaText.split('').map(char => {
+                    // 空格给一个高度
+                    if (char === ' ') return `<div style="height: 0.5em;"></div>`;
+                    // 无论是数字、汉字还是斜杠，全部正向显示并占据一行
+                    // 如果觉得数字之间太稀疏，可以将 line-height 调小（如 1.1）
+                    return `<span style="display: block; line-height: 1.3; font-style: normal;">${char}</span>`;
+                }).join('');
+            } else {
+                // 普通模式
+                metaEl.innerText = metaText;
+            }
             metaEl.style.display = 'block';
         } else {
             metaEl.style.display = 'none';
@@ -442,7 +476,7 @@
                 document.documentElement.style.setProperty('--primary-color', p.text);
     
                 const patternBox = document.getElementById('patternBox');
-                const darkThemes = ['黑暗', '森林', '月夜', '古铜'];
+                const darkThemes = ['黑暗', '森林', '月夜', '古铜', '玫瑰', '大地'];
     
                 if (darkThemes.includes(p.name)) {
                     area.classList.add('dark-mode'); 
@@ -463,11 +497,30 @@
             const titleTarget = document.getElementById('p-title');
             titleTarget.innerHTML = isAncient ? formatAncientTitle(titleVal) : titleVal.replace(/\n/g, '<br>');
             titleTarget.style.display = titleVal.trim() ? 'block' : 'none';
+            
             ['author', 'preface', 'postscript'].forEach(f => {
                 const input = document.getElementById(f + 'Input');
                 const target = document.getElementById('p-' + f);
-                target.innerText = input.value;
-                target.style.display = input.value.trim() ? 'block' : 'none';
+                let val = input.value;
+
+                // 最终修复：古雅模式下作者名的特殊处理，使用 <br> 强制换行
+                if (f === 'author' && isAncient && val.trim()) {
+                    target.innerHTML = val.split('').map(char => {
+                        // 匹配 英文、数字、英文标点
+                        if (/[a-zA-Z0-9\p{P}]/u.test(char)) {
+                            // 将旋转后的字符包装在 inline-block 中，以便应用 transform
+                            return `<span style="display: inline-block; transform: rotate(90deg); -webkit-transform: rotate(90deg); margin: 0.1em 0; font-style: normal;">${char}</span>`;
+                        }
+                        // 空格用一个有高度的 span 代替
+                        if (char === ' ') return `<span style="display: block; height: 0.5em;"></span>`;
+                        // 中文字符直接返回
+                        return char;
+                    }).join('<br />'); // 在每个字符后强制换行
+                } else {
+                    target.innerText = val;
+                }
+                
+                target.style.display = val.trim() ? 'block' : 'none';
             });
             updateMetaData();
         };
@@ -487,6 +540,7 @@
                 btn.classList.add('active');
                 document.getElementById('capture-area').className = btn.dataset.ly;
                 syncInputs(); 
+                updateMetaData();
             };
         });
 
@@ -546,6 +600,15 @@
                     const clonedPattern = clonedDoc.getElementById('patternBox');
                     if (clonedPattern) {
                         clonedPattern.style.height = area.scrollHeight + 'px';
+                    }
+                    // 修复：确保克隆文档中的作者名元素也是 div
+                    const authorEl = clonedDoc.getElementById('p-author');
+                    if (authorEl && authorEl.tagName === 'SPAN') {
+                       const div = clonedDoc.createElement('div');
+                        div.id = authorEl.id;
+                        div.className = authorEl.className;
+                        div.innerHTML = authorEl.innerHTML;
+                        authorEl.parentNode.replaceChild(div, authorEl);
                     }
                 }
             });
