@@ -58,11 +58,9 @@
         }
         .sidebar.collapsed + .toggle-sidebar { left: 0; }
 
-        /* --- 修正后的移动端适配核心代码 --- */
+        /* --- 移动端适配 --- */
         @media screen and (max-width: 768px) {
             :root { --sidebar-width: 280px; } 
-
-            /* 1. 侧边栏完全悬浮，不挤压主视图空间 */
             .sidebar { 
                 position: fixed; 
                 height: 100%; 
@@ -77,31 +75,24 @@
                 transform: translateX(-100%); 
                 visibility: hidden;
             }
-
-            /* 2. 核心修复：取消 flex 居中，改为 block 布局配合 overflow-x */
             .preview-container { 
                 padding: 40px 0 !important; 
                 width: 100vw;
                 height: 100vh;
-                display: block !important; /* 必须改为 block 以禁用 justify-content:center */
-                overflow-x: auto !important; /* 允许横向滚动 */
+                display: block !important; 
+                overflow-x: auto !important; 
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
                 position: relative;
-                text-align: left; /* 确保内容从左侧开始 */
+                text-align: left; 
             }
-
-            /* 3. 核心修复：调整原点与间距，确保不被左侧遮挡 */
             #capture-area { 
-                margin: 0 20px !important; /* 给左侧留出一点安全边距 */
-                transform-origin: top left !important; /* 必须从左上角缩放 */
-                /* 缩放比例改为固定 0.8 或根据宽度，但保证其宽度大于屏幕从而可以滚动 */
+                margin: 0 20px !important; 
+                transform-origin: top left !important; 
                 transform: scale(0.8); 
                 transition: transform 0.3s ease;
                 display: block;
             }
-
-            /* 4. 底部按钮适配 */
             .save-btn { 
                 width: calc(100% - 40px); 
                 left: 20px; 
@@ -111,22 +102,17 @@
                 text-align: center;
                 z-index: 3000;
             }
-
-            /* 5. 调整切换按钮 */
             .toggle-sidebar {
                 padding: 15px 8px;
                 z-index: 2600;
             }
         }
-        /* --- 移动端适配结束 --- */
 
         .section { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
         .section h3 { font-size: 0.95rem; color: #222; margin-top: 0; margin-bottom: 10px; border-left: 5px solid #d44b4b; padding-left: 10px; }
         label { display: block; margin-bottom: 8px; font-size: 0.8rem; font-weight: bold; color: #555; }
         input, textarea, select { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; font-size: 16px; }
-        
         input[type="range"] { border: none; padding: 0; height: 20px; }
-
         .grid-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .btn-opt { padding: 12px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 6px; font-size: 0.8rem; text-align: center; transition: 0.2s; }
         .btn-opt.active { border-color: #d44b4b; background: #fff5f5; color: #d44b4b; font-weight: bold; }
@@ -143,36 +129,23 @@
 
         .pattern-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; opacity: 0.1; transition: filter 0.3s, opacity 0.3s; }
         
-        /* 原有样式保持不变 */
         .pt-dots { background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='1.5' cy='1.5' r='1.5' fill='%23000'/%3E%3C/svg%3E"); }
         .pt-grid { background-image: url("data:image/svg+xml,%3Csvg width='35' height='35' viewBox='0 0 35 35' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 35 0 L 0 0 0 35' fill='none' stroke='%23000' stroke-width='0.5'/%3E%3C/svg%3E"); }
         .pt-wave { background-image: url("data:image/svg+xml,%3Csvg width='65' height='65' viewBox='0 0 65 65' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 32.5 Q 16.25 15 32.5 32.5 T 65 32.5' fill='none' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E"); }
         .pt-stars { background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 20 L30 40 M20 30 L40 30' stroke='%23000' stroke-width='1'/%3E%3Ccircle cx='30' cy='30' r='1.5' fill='%23000'/%3E%3C/svg%3E"); }
         .pt-linen { background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10 L40 10 M0 30 L40 30 M10 0 L10 40 M30 0 L30 40' fill='none' stroke='%23000' stroke-width='0.2'/%3E%3C/svg%3E"); }
-        .pt-bubble { 
-            background-image: url("data:image/svg+xml,%3Csvg width='180' height='180' viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 40c0-10 8-15 15-15s15 5 15 15-8 15-15 15-15-5-15-15zm4-2c0 8 6 12 11 12s11-4 11-12-6-12-11-12-11 4-11 12zm36-20c0-8 6-12 11-12s11 4 11 12-6 12-11 12-11-4-11-12zm4-2c0 6 4 9 8 9s8-3 8-9-4-9-8-9-8 3-8 9zm-50 40c0-4 3-6 6-6s6 2 6 6-3 6-6 6-6-2-6-6zm2-1c0 3 2 4 4 4s4-1 4-4-2-4-4-4-4 1-4 4z' fill='%23000' fill-opacity='.4'/%3E%3C/svg%3E");
-            background-size: 100px auto;
-        }
-        .pt-rain { 
-            /* 1. viewBox 扩大到 200x200 营造大空间 */
-            /* 2. 只保留 3 根线条，且位置随机分布（避开对称点） */
-            background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23000' stroke-width='1.8' stroke-linecap='round' opacity='0.45'%3E%3Cpath d='M40 30 L25 85' /%3E%3C!-- 左上长线 --%3E%3Cpath d='M160 55 L150 95' /%3E%3C!-- 右中短线 --%3E%3Cpath d='M95 130 L80 180' /%3E%3C!-- 中下长线 --%3E%3C/g%3E%3C/svg%3E"); 
-            /* 3. background-size 增加到 250px，这是消除密恐的关键，让留白面积远大于雨滴面积 */
-            background-size: 250px 250px; 
-        }
-        /* 新增：深色模式专用的白色底纹 (将 %23000 替换为 %23fff) */
+        .pt-bubble { background-image: url("data:image/svg+xml,%3Csvg width='180' height='180' viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 40c0-10 8-15 15-15s15 5 15 15-8 15-15 15-15-5-15-15zm4-2c0 8 6 12 11 12s11-4 11-12-6-12-11-12-11 4-11 12zm36-20c0-8 6-12 11-12s11 4 11 12-6 12-11 12-11-4-11-12zm4-2c0 6 4 9 8 9s8-3 8-9-4-9-8-9-8 3-8 9zm-50 40c0-4 3-6 6-6s6 2 6 6-3 6-6 6-6-2-6-6zm2-1c0 3 2 4 4 4s4-1 4-4-2-4-4-4-4 1-4 4z' fill='%23000' fill-opacity='.4'/%3E%3C/svg%3E"); background-size: 100px auto; }
+        .pt-rain { background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23000' stroke-width='1.8' stroke-linecap='round' opacity='0.45'%3E%3Cpath d='M40 30 L25 85' /%3E%3Cpath d='M160 55 L150 95' /%3E%3Cpath d='M95 130 L80 180' /%3E%3C/g%3E%3C/svg%3E"); background-size: 250px 250px; }
+        
         .dark-mode .pt-dots { background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='1.5' cy='1.5' r='1.5' fill='%23fff'/%3E%3C/svg%3E"); }
         .dark-mode .pt-grid { background-image: url("data:image/svg+xml,%3Csvg width='35' height='35' viewBox='0 0 35 35' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 35 0 L 0 0 0 35' fill='none' stroke='%23fff' stroke-width='0.5'/%3E%3C/svg%3E"); }
         .dark-mode .pt-wave { background-image: url("data:image/svg+xml,%3Csvg width='65' height='65' viewBox='0 0 65 65' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 32.5 Q 16.25 15 32.5 32.5 T 65 32.5' fill='none' stroke='%23fff' stroke-width='1'/%3E%3C/svg%3E"); }
         .dark-mode .pt-stars { background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 20 L30 40 M20 30 L40 30' stroke='%23fff' stroke-width='1'/%3E%3Ccircle cx='30' cy='30' r='1.5' fill='%23fff'/%3E%3C/svg%3E"); }
-        .dark-mode .pt-linen { background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10 L40 10 M0 30 L40 30 M10 0 L10 40 M30 0 L30 40' fill='none' stroke='%23fff' stroke-width='0.2'/%3E%3C/svg%3E"); }        .top-section { display: flex; flex-direction: column; width: 100%; position: relative; z-index: 20; box-sizing: border-box; }
-        .dark-mode .pt-bubble { 
-            background-image: url("data:image/svg+xml,%3Csvg width='180' height='180' viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 40c0-10 8-15 15-15s15 5 15 15-8 15-15 15-15-5-15-15zm4-2c0 8 6 12 11 12s11-4 11-12-6-12-11-12-11 4-11 12zm36-20c0-8 6-12 11-12s11 4 11 12-6 12-11 12-11-4-11-12zm4-2c0 6 4 9 8 9s8-3 8-9-4-9-8-9-8 3-8 9zm-50 40c0-4 3-6 6-6s6 2 6 6-3 6-6 6-6-2-6-6zm2-1c0 3 2 4 4 4s4-1 4-4-2-4-4-4-4 1-4 4z' fill='%23fff' fill-opacity='.4'/%3E%3C/svg%3E");
-        }
-        .dark-mode .pt-rain { 
-            background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23fff' stroke-width='1.8' stroke-linecap='round' opacity='0.35'%3E%3Cpath d='M40 30 L25 85' /%3E%3Cpath d='M160 55 L150 95' /%3E%3Cpath d='M95 130 L80 180' /%3E%3C/g%3E%3C/svg%3E"); 
-            background-size: 250px 250px;
-        }        
+        .dark-mode .pt-linen { background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10 L40 10 M0 30 L40 30 M10 0 L10 40 M30 0 L30 40' fill='none' stroke='%23fff' stroke-width='0.2'/%3E%3C/svg%3E"); }        
+        .dark-mode .pt-bubble { background-image: url("data:image/svg+xml,%3Csvg width='180' height='180' viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 40c0-10 8-15 15-15s15 5 15 15-8 15-15 15-15-5-15-15zm4-2c0 8 6 12 11 12s11-4 11-12-6-12-11-12-11 4-11 12zm36-20c0-8 6-12 11-12s11 4 11 12-6 12-11 12-11-4-11-12zm4-2c0 6 4 9 8 9s8-3 8-9-4-9-8-9-8 3-8 9zm-50 40c0-4 3-6 6-6s6 2 6 6-3 6-6 6-6-2-6-6zm2-1c0 3 2 4 4 4s4-1 4-4-2-4-4-4-4 1-4 4z' fill='%23fff' fill-opacity='.4'/%3E%3C/svg%3E"); }
+        .dark-mode .pt-rain { background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23fff' stroke-width='1.8' stroke-linecap='round' opacity='0.35'%3E%3Cpath d='M40 30 L25 85' /%3E%3Cpath d='M160 55 L150 95' /%3E%3Cpath d='M95 130 L80 180' /%3E%3C/g%3E%3C/svg%3E"); background-size: 250px 250px; }        
+        
+        .top-section { display: flex; flex-direction: column; width: 100%; position: relative; z-index: 20; box-sizing: border-box; }
         .banner-box { width: 100%; height: auto; position: relative; overflow: hidden; display: none; }
         #p-banner { width: 100%; display: block; }
         #bannerOverlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
@@ -181,7 +154,7 @@
         .ly-standard .header-area { text-align: center; }
         .ly-typewriter .content-main { border: 1px solid var(--primary-color); margin: 40px 60px; padding: 40px; box-sizing: border-box; }
 
-        /* --- 新增：复古样式 --- */
+        /* --- 修正：复古模式标题 --- */
         .ly-retro .header-area { text-align: left; padding: 60px 75px 20px 75px; }
         .ly-retro .p-title {
             display: inline-block;
@@ -189,10 +162,14 @@
             font-style: italic;
             padding: 12px 25px;
             border: 5px solid var(--primary-color);
-            box-shadow: 10px 10px 0px var(--primary-color);
             line-height: 1.1;
             margin-bottom: 40px;
             word-break: break-all;
+            /* 正常显示时使用 box-shadow */
+            box-shadow: 10px 10px 0px var(--primary-color);
+            position: relative;
+            z-index: 5;
+            background-color: var(--bg-color); /* 确保不透明以遮挡物理投影 */
         }
         .ly-retro .p-author {
             display: block;
@@ -208,37 +185,10 @@
         .ly-ancient .top-section { flex-direction: row-reverse; justify-content: flex-start; align-items: flex-start; padding: 60px 75px 20px 75px; gap: 30px; }
         .ly-ancient .header-area { padding: 0; flex-shrink: 0; display: flex; flex-direction: row-reverse; max-width: 280px; align-items: flex-start; }
         .ly-ancient .p-title { writing-mode: vertical-rl; text-orientation: upright; font-size: 2.8rem; letter-spacing: 0.5rem; border-left: 1px solid; padding-left: 20px; line-height: 1.2; display: block; }
-        
-        /* 最终修复：古雅模式作者名对齐逻辑 */
-        .ly-ancient .p-author {
-            display: block;
-            font-size: 0.9rem;
-            font-style: italic;
-            margin: 0 15px;
-            padding-top: 15px; /* 用于微调与标题的顶部对齐 */
-            opacity: 0.8;
-            line-height: 1.1; /* 控制行间距 */
-            text-align: center;
-        }
-
+        .ly-ancient .p-author { display: block; font-size: 0.9rem; font-style: italic; margin: 0 15px; padding-top: 15px; opacity: 0.8; line-height: 1.1; text-align: center; }
         .ly-ancient .banner-box { display: block; width: 240px; margin: 0; order: 2; box-shadow: 0 15px 45px rgba(0,0,0,0.35); }
-
-        /* 新增：文章元数据样式（字数/阅读时间） */
         .p-meta { font-size: 0.75rem; opacity: 0.5; margin-top: 8px; font-style: normal; }
-        /* 找到 .ly-ancient .p-meta 并替换为： */
-        .ly-ancient .p-meta { 
-        writing-mode: horizontal-tb !important; 
-        width: 1.2em !important;
-        text-align: center;
-        margin-top: 0; 
-        margin-right: 10px; 
-        padding-top: 15px;
-        height: fit-content;
-        border-right: 1px solid rgba(0,0,0,0.1);
-        padding-right: 5px;
-        font-size: 0.75rem;
-        line-height: 1.2;
-    }
+        .ly-ancient .p-meta { writing-mode: horizontal-tb !important; width: 1.2em !important; text-align: center; margin-top: 0; margin-right: 10px; padding-top: 15px; height: fit-content; border-right: 1px solid rgba(0,0,0,0.1); padding-right: 5px; font-size: 0.75rem; line-height: 1.2; }
 
         .content-main { padding: 40px 75px 120px 75px; position: relative; z-index: 10; flex-grow: 1; }
         .p-title { font-size: calc(var(--font-size) * 2.2); margin: 0; font-weight: 700; line-height: 1.2; white-space: pre-wrap; word-break: break-word; }
@@ -367,7 +317,6 @@
 <div class="preview-container">
     <div id="capture-area" class="ly-standard">
         <div id="patternBox" class="pattern-layer"></div>
-        
         <div class="top-section">
             <div id="bannerBox" class="banner-box">
                 <div id="bannerOverlay"></div>
@@ -379,7 +328,6 @@
                 <div class="p-meta" id="p-meta"></div>
             </div>
         </div>
-        
         <div id="contentArea" style="position: relative; flex-grow: 1;">
             <div class="content-main">
                 <div class="p-preface" id="p-preface"></div>
@@ -442,7 +390,7 @@
             return shouldIndent && cleanLine.length > 0 ? '　　' + cleanLine : cleanLine;
         });
         textEl.innerText = newLines.join('\n');
-        updateMetaData(); // 更新字数
+        updateMetaData();
     }
 
     function setSpacing(type) {
@@ -453,7 +401,7 @@
         btns[type-1].classList.add('active');
         text = type === 1 ? text.replace(/\n\n+/g, '\n') : text.replace(/\n+/g, '\n\n');
         textEl.innerText = text;
-        updateMetaData(); // 更新字数
+        updateMetaData();
     }
 
     function formatAncientTitle(text) {
@@ -468,35 +416,20 @@
         return result;
     }
 
-    // 新增：更新字数与阅读时间
     function updateMetaData() {
         const text = document.getElementById('p-text').innerText || "";
         const count = text.replace(/\s/g, "").length; 
         const minutes = Math.ceil(count / 400) || 1; 
         const metaEl = document.getElementById('p-meta');
         const isEnabled = document.getElementById('metaToggle').checked;
-        
         if (isEnabled) {
             let metaText = `全文计 ${count} 字 / 预计阅读 ${minutes} 分钟`;
             const isAncient = document.getElementById('capture-area').classList.contains('ly-ancient');
-
             if (isAncient) {
-                // 古雅模式：不旋转，全员块级化竖向堆叠
-                metaEl.innerHTML = metaText.split('').map(char => {
-                    // 空格给一个高度
-                    if (char === ' ') return `<div style="height: 0.5em;"></div>`;
-                    // 无论是数字、汉字还是斜杠，全部正向显示并占据一行
-                    // 如果觉得数字之间太稀疏，可以将 line-height 调小（如 1.1）
-                    return `<span style="display: block; line-height: 1.3; font-style: normal;">${char}</span>`;
-                }).join('');
-            } else {
-                // 普通模式
-                metaEl.innerText = metaText;
-            }
+                metaEl.innerHTML = metaText.split('').map(char => char === ' ' ? `<div style="height: 0.5em;"></div>` : `<span style="display: block; line-height: 1.3;">${char}</span>`).join('');
+            } else { metaEl.innerText = metaText; }
             metaEl.style.display = 'block';
-        } else {
-            metaEl.style.display = 'none';
-        }
+        } else { metaEl.style.display = 'none'; }
     }
 
     window.onload = () => {
@@ -512,52 +445,33 @@
                 area.style.backgroundColor = p.bg; 
                 area.style.color = p.text;
                 document.documentElement.style.setProperty('--primary-color', p.text);
-    
+                /* 核心：同步更新背景色变量，用于复古模式的阴影处理 */
+                document.documentElement.style.setProperty('--bg-color', p.bg);
                 const patternBox = document.getElementById('patternBox');
-                const darkThemes = ['黑暗', '森林', '月夜', '古铜', '玫瑰', '大地'];
-    
-                if (darkThemes.includes(p.name)) {
-                    area.classList.add('dark-mode'); 
-                    patternBox.style.filter = 'none'; 
-                    patternBox.style.opacity = '0.15'; 
-                } else {
-                    area.classList.remove('dark-mode');
-                    patternBox.style.filter = 'none';
-                    patternBox.style.opacity = '0.15';
-                }
+                if (['黑暗', '森林', '月夜', '古铜', '玫瑰', '大地'].includes(p.name)) {
+                    area.classList.add('dark-mode'); patternBox.style.opacity = '0.15';
+                } else { area.classList.remove('dark-mode'); patternBox.style.opacity = '0.15'; }
             };
             pCont.appendChild(b);
         });
 
         const syncInputs = () => {
-            const isAncient = document.getElementById('capture-area').classList.contains('ly-ancient');
+            const area = document.getElementById('capture-area');
+            const isAncient = area.classList.contains('ly-ancient');
             const titleVal = document.getElementById('titleInput').value;
             const titleTarget = document.getElementById('p-title');
             titleTarget.innerHTML = isAncient ? formatAncientTitle(titleVal) : titleVal.replace(/\n/g, '<br>');
             titleTarget.style.display = titleVal.trim() ? 'block' : 'none';
-            
             ['author', 'preface', 'postscript'].forEach(f => {
                 const input = document.getElementById(f + 'Input');
                 const target = document.getElementById('p-' + f);
                 let val = input.value;
-
-                // 最终修复：古雅模式下作者名的特殊处理，使用 <br> 强制换行
                 if (f === 'author' && isAncient && val.trim()) {
                     target.innerHTML = val.split('').map(char => {
-                        // 匹配 英文、数字、英文标点
-                        if (/[a-zA-Z0-9\p{P}]/u.test(char)) {
-                            // 将旋转后的字符包装在 inline-block 中，以便应用 transform
-                            return `<span style="display: inline-block; transform: rotate(90deg); -webkit-transform: rotate(90deg); margin: 0.1em 0; font-style: normal;">${char}</span>`;
-                        }
-                        // 空格用一个有高度的 span 代替
-                        if (char === ' ') return `<span style="display: block; height: 0.5em;"></span>`;
-                        // 中文字符直接返回
-                        return char;
-                    }).join('<br />'); // 在每个字符后强制换行
-                } else {
-                    target.innerText = val;
-                }
-                
+                        if (/[a-zA-Z0-9\p{P}]/u.test(char)) return `<span style="display: inline-block; transform: rotate(90deg); margin: 0.1em 0;">${char}</span>`;
+                        return char === ' ' ? `<span style="display: block; height: 0.5em;"></span>` : char;
+                    }).join('<br />');
+                } else { target.innerText = val; }
                 target.style.display = val.trim() ? 'block' : 'none';
             });
             updateMetaData();
@@ -566,10 +480,7 @@
         ['titleInput', 'authorInput', 'prefaceInput', 'postscriptInput'].forEach(id => {
             document.getElementById(id).oninput = syncInputs;
         });
-
-        // 监听正文变化
         document.getElementById('p-text').oninput = updateMetaData;
-        // 监听开关变化
         document.getElementById('metaToggle').onchange = updateMetaData;
 
         document.querySelectorAll('#layoutSelect .btn-opt').forEach(btn => {
@@ -577,8 +488,7 @@
                 document.querySelectorAll('#layoutSelect .btn-opt').forEach(x => x.classList.remove('active'));
                 btn.classList.add('active');
                 document.getElementById('capture-area').className = btn.dataset.ly;
-                syncInputs(); 
-                updateMetaData();
+                syncInputs(); updateMetaData();
             };
         });
 
@@ -593,15 +503,11 @@
         document.getElementById('chFontSelect').onchange = (e) => document.documentElement.style.setProperty('--ch-font', e.target.value);
         document.getElementById('enFontSelect').onchange = (e) => document.documentElement.style.setProperty('--en-font', e.target.value);
         document.getElementById('fontSizeSelect').onchange = (e) => document.documentElement.style.setProperty('--font-size', e.target.value);
-
         document.getElementById('imageInput').onchange = (e) => {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = (ev) => {
-                    document.getElementById('p-banner').src = ev.target.result;
-                    document.getElementById('bannerBox').style.display = 'block';
-                };
+                reader.onload = (ev) => { document.getElementById('p-banner').src = ev.target.result; document.getElementById('bannerBox').style.display = 'block'; };
                 reader.readAsDataURL(file);
             }
         };
@@ -611,8 +517,7 @@
     };
 
     function clearImage() {
-        document.getElementById('p-banner').src = "";
-        document.getElementById('bannerBox').style.display = 'none';
+        document.getElementById('p-banner').src = ""; document.getElementById('bannerBox').style.display = 'none';
         document.getElementById('imageInput').value = "";
     }
 
@@ -620,7 +525,6 @@
         const btn = document.querySelector('.save-btn');
         btn.innerText = '正在生成...'; btn.disabled = true;
         const area = document.getElementById('capture-area');
-        
         const originalTransform = area.style.transform;
         const originalZoom = area.style.zoom;
         area.style.transform = 'none';
@@ -629,55 +533,53 @@
         try {
             document.querySelector('.preview-container').scrollTop = 0;
             const canvas = await html2canvas(area, {
-                scale: 2, 
-                useCORS: true,
+                scale: 2, useCORS: true,
                 backgroundColor: getComputedStyle(area).backgroundColor,
                 height: area.scrollHeight,
                 windowHeight: area.scrollHeight,
                 onclone: (clonedDoc) => {
+                    /* --- 彻底修正：复古标题物理注入逻辑 --- */
+                    const retroTitle = clonedDoc.querySelector('.ly-retro #p-title');
+                    if (retroTitle) { 
+                        // 1. 获取主色调
+                        const primaryColor = getComputedStyle(area).getPropertyValue('--primary-color');
+                        // 2. 移除原有的 box-shadow 以免导出时计算错误
+                        retroTitle.style.boxShadow = 'none';
+                        // 3. 物理注入阴影：创建一个真实存在的 div 放在标题之后
+                        const shadowDiv = clonedDoc.createElement('div');
+                        shadowDiv.style.position = 'absolute';
+                        shadowDiv.style.zIndex = '1';
+                        shadowDiv.style.backgroundColor = primaryColor;
+                        shadowDiv.style.width = retroTitle.offsetWidth + 'px';
+                        shadowDiv.style.height = retroTitle.offsetHeight + 'px';
+                        shadowDiv.style.left = (retroTitle.offsetLeft + 10) + 'px';
+                        shadowDiv.style.top = (retroTitle.offsetTop + 10) + 'px';
+                        shadowDiv.style.border = '5px solid ' + primaryColor;
+                        shadowDiv.style.boxSizing = 'content-box';
+                        // 4. 将阴影注入到标题所在容器
+                        retroTitle.parentNode.appendChild(shadowDiv);
+                        // 5. 确保标题本身在最上层
+                        retroTitle.style.zIndex = '5';
+                        retroTitle.style.position = 'relative';
+                        retroTitle.style.backgroundColor = getComputedStyle(area).backgroundColor;
+                    }
+
                     const clonedText = clonedDoc.getElementById('p-text');
                     if (clonedText) {
-                        // 1. 强制保留两端对齐
                         clonedText.style.textAlign = 'justify';
-                        
-                        // 2. 终极方案：物理隔离法
-                        // 将所有的 【 】 包装在 inline-block 的 span 里，并强行设置宽度为 1em（即一个完整汉字的宽度）
-                        // 这样 html2canvas 就会把它当成一个“方块”来排版，绝对无法被后面的汉字重叠
-                        let rawHtml = clonedText.innerHTML;
-                        const fixedHtml = rawHtml
-                            .replace(/【/g, '<span style="display:inline-block; width:1em; text-align:center; vertical-align: baseline;">【</span>')
-                            .replace(/】/g, '<span style="display:inline-block; width:1em; text-align:center; vertical-align: baseline;">】</span>');
-                        clonedText.innerHTML = fixedHtml;
-
-                        // 3. 辅助修正：防止某些浏览器依然计算错误
-                        clonedText.style.fontVariantLigatures = 'none';
-                        clonedText.style.fontFeatureSettings = '"kern" 0, "palt" 0, "vpal" 0, "chws" 0';
+                        clonedText.innerHTML = clonedText.innerHTML
+                            .replace(/【/g, '<span style="display:inline-block; width:1em; text-align:center;">【</span>')
+                            .replace(/】/g, '<span style="display:inline-block; width:1em; text-align:center;">】</span>');
                     }
-                    
                     const clonedPattern = clonedDoc.getElementById('patternBox');
-                    if (clonedPattern) {
-                        clonedPattern.style.height = area.scrollHeight + 'px';
-                    }
-                    // 修复：确保克隆文档中的作者名元素也是 div
-                    const authorEl = clonedDoc.getElementById('p-author');
-                    if (authorEl && authorEl.tagName === 'SPAN') {
-                       const div = clonedDoc.createElement('div');
-                        div.id = authorEl.id;
-                        div.className = authorEl.className;
-                        div.innerHTML = authorEl.innerHTML;
-                        authorEl.parentNode.replaceChild(div, authorEl);
-                    }
+                    if (clonedPattern) { clonedPattern.style.height = area.scrollHeight + 'px'; }
                 }
             });
             const link = document.createElement('a');
             link.download = '排版长图_' + Date.now() + '.png';
             link.href = canvas.toDataURL('image/png'); link.click();
-        } catch (e) { 
-            console.error(e);
-            alert('导出失败。'); 
-        } finally {
-            area.style.transform = originalTransform;
-            area.style.zoom = originalZoom;
+        } catch (e) { console.error(e); alert('导出失败。'); } finally {
+            area.style.transform = originalTransform; area.style.zoom = originalZoom;
             btn.innerText = '导出长图'; btn.disabled = false;
         }
     }
