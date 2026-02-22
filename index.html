@@ -573,10 +573,26 @@
                     const clonedText = clonedDoc.getElementById('p-text');
                     if (clonedText) {
                         clonedText.style.textAlign = 'justify';
-                        clonedText.innerHTML = clonedText.innerHTML
-                            .replace(/【/g, '<span style="display:inline-block; width:1em; text-align:center;">【</span>')
-                            .replace(/】/g, '<span style="display:inline-block; width:1em; text-align:center;">】</span>');
+                        
+                        // 定义需要处理的标点符号映射
+                        const puncs = [
+                            { reg: /【/g, char: '【' },
+                            { reg: /】/g, char: '】' },
+                            { reg: /“/g, char: '“' },
+                            { reg: /”/g, char: '”' },
+                            { reg: /（/g, char: '（' },
+                            { reg: /）/g, char: '）' }
+                        ];
+
+                        let html = clonedText.innerHTML;
+                        puncs.forEach(item => {
+                            // 将标点封装在固定 1em 宽度的容器中，确保不与文字重叠并占据完整字位
+                            html = html.replace(item.reg, `<span style="display:inline-block; width:1em; text-align:center;">${item.char}</span>`);
+                        });
+                        
+                        clonedText.innerHTML = html;
                     }
+
                     const clonedPattern = clonedDoc.getElementById('patternBox');
                     if (clonedPattern) { clonedPattern.style.height = area.scrollHeight + 'px'; }
                 }
