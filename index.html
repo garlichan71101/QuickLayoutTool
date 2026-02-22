@@ -346,12 +346,10 @@
 
     已知问题：
     1.切换字体时有概率会回到默认字体。
-    2.古雅模式下，标题的数字会在渲染时偏向左边。
-    3.手机页面选中文字后会与改变字形（加粗、斜体等）操作冲突导致丢失焦点。
+    2.手机页面选中文字后会与改变字形（加粗、斜体等）操作冲突导致丢失焦点。
     解决方法：
     1.等1分钟还是没变化刷新一下网页，大概率在下载字体文件。
-    2.标题数字使用全角数字，或者使用汉字数字。
-    3.想办法修复中，有需求的朋友们可以使用电脑版改变字形。
+    2.想办法修复中，有需求的朋友们可以使用电脑版改变字形。
     
     删除Readme，粘贴你的作品来开始排版，玩得开心！——R
                 </div>
@@ -412,16 +410,38 @@
 
     function formatAncientTitle(text) {
         const specialPuncs = /[：”]/; 
-        let result = ""; let lineLength = 0;
+        let result = ""; 
+        let lineLength = 0;
         const cleanText = text.replace(/\n/g, "");
+        
+        // 定义半角数字转全角的工具函数
+        const toFullWidthNum = (num) => {
+            return String.fromCharCode(num.charCodeAt(0) + 0xFEE0);
+        };
+
         for (let i = 0; i < cleanText.length; i++) {
-            let char = cleanText[i]; result += char; lineLength++;
+            let char = cleanText[i]; 
+            
+            let processedChar = char;
+            // 如果是数字，将其转换为全角数字并包裹在 span 中确保布局稳定
+            if (/[0-9]/.test(char)) {
+                const fullWidthChar = toFullWidthNum(char);
+                processedChar = `<span style="display:inline-block; width:1em; text-align:center; line-height:1;">${fullWidthChar}</span>`;
+            }
+
+            result += processedChar; 
+            lineLength++;
+            
+            // 换行逻辑
             let shouldBreak = lineLength >= 5 || specialPuncs.test(char) || (char === '—' && cleanText[i+1] !== '—' && cleanText[i-1] === '—');
-            if (shouldBreak && i < cleanText.length - 1) { result += "<br>"; lineLength = 0; }
+            if (shouldBreak && i < cleanText.length - 1) { 
+                result += "<br>"; 
+                lineLength = 0; 
+            }
         }
         return result;
     }
-
+    
     function updateMetaData() {
         const text = document.getElementById('p-text').innerText || "";
         const count = text.replace(/\s/g, "").length; 
