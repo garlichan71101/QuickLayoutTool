@@ -370,21 +370,23 @@
 <script>
     const palettes = [
         { name: '经典', bg: '#ffffff', text: '#2d3436' },
+        { name: '远山', bg: '#e9eaf0', text: '#2a3040' },
         { name: '宣纸', bg: '#f4efe1', text: '#3e2723' },
+        { name: '奶油', bg: '#fffaf0', text: '#4f3a28' },
+        { name: '朝露', bg: '#F0EEDA', text: '#465C3A' },
         { name: '淡青', bg: '#eff7f5', text: '#2d5a44' },
         { name: '藕粉', bg: '#fff7f9', text: '#5c2b32' },
-        { name: '远山', bg: '#e9eaf0', text: '#2a3040' },
-        { name: '奶油', bg: '#fffaf0', text: '#4f3a28' },
+        { name: '丁香', bg: '#f4edfa', text: '#585261' },
         { name: '海洋', bg: '#e8f4ff', text: '#005493' }, 
         { name: '微风', bg: '#f2fffd', text: '#375570' },
-        { name: '丁香', bg: '#f4edfa', text: '#585261' },
         { name: '黑暗', bg: '#1a1a1b', text: '#d1d1d1' },
-        { name: '森林', bg: '#102018', text: '#a5b5ad' },
-        { name: '月夜', bg: '#0f172a', text: '#94a3b8' },
-        { name: '古铜', bg: '#2d241e', text: '#c5b3a3' },         
         { name: '玫瑰', bg: '#0f0202', text: '#bf2c2c' },
+        { name: '森林', bg: '#102018', text: '#a5b5ad' },
+        { name: '迷彩', bg: '#1F2218', text: '#C2C5B3' },
+        { name: '古铜', bg: '#2d241e', text: '#c5b3a3' },         
         { name: '大地', bg: '#54463d', text: '#dbd3c9' },
-        { name: '暮霭', bg: '#061233', text: '#ad3d1d' }
+        { name: '月夜', bg: '#0f172a', text: '#94a3b8' },
+        { name: '暮霭', bg: '#061233', text: '#AD563D' }
     ];
 
     function toggleSidebar() {
@@ -482,7 +484,7 @@
                 /* 核心：同步更新背景色变量，用于复古模式的阴影处理 */
                 document.documentElement.style.setProperty('--bg-color', p.bg);
                 const patternBox = document.getElementById('patternBox');
-                if (['黑暗', '森林', '月夜', '古铜', '玫瑰', '大地', '暮霭'].includes(p.name)) {
+                if (['黑暗', '森林', '月夜', '古铜', '玫瑰', '大地', '暮霭', '迷彩'].includes(p.name)) {
                     area.classList.add('dark-mode'); patternBox.style.opacity = '0.15';
                 } else { area.classList.remove('dark-mode'); patternBox.style.opacity = '0.15'; }
             };
