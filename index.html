@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>丐版长文排版器</title>
+    <title>丐版长文排版器 (Markdown全功能整合版)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont@1.1.0/style.css" />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Noto+Serif+SC:wght@400;700&family=Inter:wght@400;700&family=Lora:ital,wght@0,400;0,700&family=Dancing+Script:wght@700&family=Instrument+Serif:ital,wght@400;700&family=Red+Hat+Text:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
 
@@ -20,19 +21,15 @@
         }
 
         @font-face {
-            font-family: 'Zhisong'; /* 你给字体起的名字 */
-            src: url('fonts/LXGWZhiSongMN.ttf') format('truetype'); /* 确保路径和文件名大小写完全一致 */
-            font-weight: normal;
-            font-style: normal;
-            font-display: swap; /* 确保字体加载时不会导致文字消失 */
+            font-family: 'Zhisong';
+            src: url('fonts/LXGWZhiSongMN.ttf') format('truetype');
+            font-weight: normal; font-style: normal; font-display: swap;
         }
 
         @font-face {
-            font-family: 'Penshuti'; /* 你给字体起的名字 */
-            src: url('fonts/YshiPenShutiCL-Regular.ttf') format('truetype'); /* 确保路径和文件名大小写完全一致 */
-            font-weight: normal;
-            font-style: normal;
-            font-display: swap; /* 确保字体加载时不会导致文字消失 */
+            font-family: 'Penshuti';
+            src: url('fonts/YshiPenShutiCL-Regular.ttf') format('truetype');
+            font-weight: normal; font-style: normal; font-display: swap;
         }
         
         body { margin: 0; font-family: 'Noto Sans SC', sans-serif; background: #111; display: flex; height: 100vh; overflow: hidden; color: #333; }
@@ -58,54 +55,14 @@
         }
         .sidebar.collapsed + .toggle-sidebar { left: 0; }
 
-        /* --- 移动端适配 --- */
         @media screen and (max-width: 768px) {
             :root { --sidebar-width: 280px; } 
-            .sidebar { 
-                position: fixed; 
-                height: 100%; 
-                left: 0; top: 0; 
-                box-shadow: 10px 0 30px rgba(0,0,0,0.3);
-                transform: translateX(0);
-                opacity: 1 !important;
-                visibility: visible;
-                z-index: 2500;
-            }
-            .sidebar.collapsed { 
-                transform: translateX(-100%); 
-                visibility: hidden;
-            }
-            .preview-container { 
-                padding: 40px 0 !important; 
-                width: 100vw;
-                height: 100vh;
-                display: block !important; 
-                overflow-x: auto !important; 
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-                position: relative;
-                text-align: left; 
-            }
-            #capture-area { 
-                margin: 0 20px !important; 
-                transform-origin: top left !important; 
-                transform: scale(0.8); 
-                transition: transform 0.3s ease;
-                display: block;
-            }
-            .save-btn { 
-                width: calc(100% - 40px); 
-                left: 20px; 
-                right: 20px; 
-                bottom: 20px; 
-                padding: 15px !important; 
-                text-align: center;
-                z-index: 3000;
-            }
-            .toggle-sidebar {
-                padding: 15px 8px;
-                z-index: 2600;
-            }
+            .sidebar { position: fixed; height: 100%; left: 0; top: 0; box-shadow: 10px 0 30px rgba(0,0,0,0.3); transform: translateX(0); opacity: 1 !important; visibility: visible; z-index: 2500; }
+            .sidebar.collapsed { transform: translateX(-100%); visibility: hidden; }
+            .preview-container { padding: 40px 0 !important; width: 100vw; height: 100vh; display: block !important; overflow-x: auto !important; overflow-y: auto; -webkit-overflow-scrolling: touch; position: relative; text-align: left; }
+            #capture-area { margin: 0 20px !important; transform-origin: top left !important; transform: scale(0.8); transition: transform 0.3s ease; display: block; }
+            .save-btn { width: calc(100% - 40px); left: 20px; right: 20px; bottom: 20px; padding: 15px !important; text-align: center; z-index: 3000; }
+            .toggle-sidebar { padding: 15px 8px; z-index: 2600; }
         }
 
         .section { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
@@ -127,8 +84,8 @@
             transition: background 0.3s; flex-shrink: 0;
         }
 
+        /* --- 完整底纹层逻辑 (完全恢复并补齐) --- */
         .pattern-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; opacity: 0.1; transition: filter 0.3s, opacity 0.3s; }
-        
         .pt-dots { background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='1.5' cy='1.5' r='1.5' fill='%23000'/%3E%3C/svg%3E"); }
         .pt-grid { background-image: url("data:image/svg+xml,%3Csvg width='35' height='35' viewBox='0 0 35 35' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 35 0 L 0 0 0 35' fill='none' stroke='%23000' stroke-width='0.5'/%3E%3C/svg%3E"); }
         .pt-wave { background-image: url("data:image/svg+xml,%3Csvg width='65' height='65' viewBox='0 0 65 65' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 32.5 Q 16.25 15 32.5 32.5 T 65 32.5' fill='none' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E"); }
@@ -136,19 +93,21 @@
         .pt-linen { background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10 L40 10 M0 30 L40 30 M10 0 L10 40 M30 0 L30 40' fill='none' stroke='%23000' stroke-width='0.2'/%3E%3C/svg%3E"); }
         .pt-bubble { background-image: url("data:image/svg+xml,%3Csvg width='360' height='360' viewBox='0 0 360 360' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 40c0-10 8-15 15-15s15 5 15 15-8 15-15 15-15-5-15-15zm4-2c0 8 6 12 11 12s11-4 11-12-6-12-11-12-11 4-11 12zm36-20c0-8 6-12 11-12s11 4 11 12-6 12-11 12-11-4-11-12zm4-2c0 6 4 9 8 9s8-3 8-9-4-9-8-9-8 3-8 9zm-50 40c0-4 3-6 6-6s6 2 6 6-3 6-6 6-6-2-6-6zm2-1c0 3 2 4 4 4s4-1 4-4-2-4-4-4-4 1-4 4z' fill='%23000' fill-opacity='.4'/%3E%3C/svg%3E"); background-size: 200px auto; }
         .pt-rain { background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23000' stroke-width='1.8' stroke-linecap='round' opacity='0.45'%3E%3Cpath d='M40 30 L25 85' /%3E%3Cpath d='M160 55 L150 95' /%3E%3Cpath d='M95 130 L80 180' /%3E%3C/g%3E%3C/svg%3E"); background-size: 250px 250px; }
-        .pt-petals { background-image: url("data:image/svg+xml,%3Csvg width='250' height='250' viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000' fill-opacity='0.25'%3E%3C!-- 花瓣1：较大，旋转45度 --%3E%3Cpath d='M30 40 Q45 20 60 40 Q45 60 30 40' transform='rotate(45 45 40)'/%3E%3C!-- 花瓣2：中等，旋转160度，位置偏移 --%3E%3Cpath d='M180 70 Q190 55 200 70 Q190 85 180 70' transform='rotate(160 190 70)'/%3E%3C!-- 花瓣3：较小，旋转-30度 --%3E%3Cpath d='M60 180 Q70 170 80 180 Q70 190 60 180' transform='rotate(-30 70 180)'/%3E%3C!-- 花瓣4：细长，旋转280度 --%3E%3Cpath d='M200 210 Q215 190 220 215 Q205 230 200 210' transform='rotate(280 210 215)'/%3E%3C/g%3E%3C/svg%3E");}
-        .pt-ripples { background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23000' stroke-width='2.2' stroke-opacity='0.2'%3E%3C!-- 第一组：大型三层同心圆 --%3E%3Ccircle cx='80' cy='80' r='15'/%3E%3Ccircle cx='80' cy='80' r='28'/%3E%3Ccircle cx='80' cy='80' r='45'/%3E%3C!-- 第二组：中型单圆 --%3E%3Ccircle cx='300' cy='70' r='22'/%3E%3C!-- 第三组：小型两层同心圆 --%3E%3Ccircle cx='150' cy='300' r='12'/%3E%3Ccircle cx='150' cy='300' r='25'/%3E%3C!-- 第四组：小型单圆 --%3E%3Ccircle cx='320' cy='320' r='18'/%3E%3C/g%3E%3C/svg%3E");}
+        .pt-petals { background-image: url("data:image/svg+xml,%3Csvg width='250' height='250' viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000' fill-opacity='0.25'%3E%3Cpath d='M30 40 Q45 20 60 40 Q45 60 30 40' transform='rotate(45 45 40)'/%3E%3Cpath d='M180 70 Q190 55 200 70 Q190 85 180 70' transform='rotate(160 190 70)'/%3E%3Cpath d='M60 180 Q70 170 80 180 Q70 190 60 180' transform='rotate(-30 70 180)'/%3E%3Cpath d='M200 210 Q215 190 220 215 Q205 230 200 210' transform='rotate(280 210 215)'/%3E%3C/g%3E%3C/svg%3E");}
+        .pt-ripples { background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23000' stroke-width='2.2' stroke-opacity='0.2'%3E%3Ccircle cx='80' cy='80' r='15'/%3E%3Ccircle cx='80' cy='80' r='28'/%3E%3Ccircle cx='80' cy='80' r='45'/%3E%3Ccircle cx='300' cy='70' r='22'/%3E%3Ccircle cx='150' cy='300' r='12'/%3E%3Ccircle cx='150' cy='300' r='25'/%3E%3Ccircle cx='320' cy='320' r='18'/%3E%3C/g%3E%3C/svg%3E");}
 
+        /* 暗黑模式底纹 (必须包含这些，否则深色主题底纹会消失) */
         .dark-mode .pt-dots { background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='1.5' cy='1.5' r='1.5' fill='%23fff'/%3E%3C/svg%3E"); }
         .dark-mode .pt-grid { background-image: url("data:image/svg+xml,%3Csvg width='35' height='35' viewBox='0 0 35 35' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 35 0 L 0 0 0 35' fill='none' stroke='%23fff' stroke-width='0.5'/%3E%3C/svg%3E"); }
         .dark-mode .pt-wave { background-image: url("data:image/svg+xml,%3Csvg width='65' height='65' viewBox='0 0 65 65' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 32.5 Q 16.25 15 32.5 32.5 T 65 32.5' fill='none' stroke='%23fff' stroke-width='1'/%3E%3C/svg%3E"); }
         .dark-mode .pt-stars { background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 25 L30 35 M25 30 L35 30' stroke='%23fff' stroke-width='0.7'/%3E%3Ccircle cx='30' cy='30' r='1' fill='%23fff'/%3E%3C/svg%3E"); }
         .dark-mode .pt-linen { background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10 L40 10 M0 30 L40 30 M10 0 L10 40 M30 0 L30 40' fill='none' stroke='%23fff' stroke-width='0.2'/%3E%3C/svg%3E"); }        
         .dark-mode .pt-bubble { background-image: url("data:image/svg+xml,%3Csvg width='360' height='360' viewBox='0 0 360 360' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 40c0-10 8-15 15-15s15 5 15 15-8 15-15 15-15-5-15-15zm4-2c0 8 6 12 11 12s11-4 11-12-6-12-11-12-11 4-11 12zm36-20c0-8 6-12 11-12s11 4 11 12-6 12-11 12-11-4-11-12zm4-2c0 6 4 9 8 9s8-3 8-9-4-9-8-9-8 3-8 9zm-50 40c0-4 3-6 6-6s6 2 6 6-3 6-6 6-6-2-6-6zm2-1c0 3 2 4 4 4s4-1 4-4-2-4-4-4-4 1-4 4z' fill='%23fff' fill-opacity='.4'/%3E%3C/svg%3E"); }
-        .dark-mode .pt-rain { background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23fff' stroke-width='1.8' stroke-linecap='round' opacity='0.35'%3E%3Cpath d='M40 30 L25 85' /%3E%3Cpath d='M160 55 L150 95' /%3E%3Cpath d='M95 130 L80 180' /%3E%3C/g%3E%3C/svg%3E"); background-size: 250px 250px; }        
+        .dark-mode .pt-rain { background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23fff' stroke-width='1.8' stroke-linecap='round' opacity='0.35'%3E%3Cpath d='M40 30 L25 85' /%3E%3Cpath d='M160 55 L150 95' /%3E%3Cpath d='M95 130 L80 180' /%3E%3C/g%3E%3C/svg%3E"); }        
         .dark-mode .pt-petals { background-image: url("data:image/svg+xml,%3Csvg width='250' height='250' viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='0.2'%3E%3Cpath d='M30 40 Q45 20 60 40 Q45 60 30 40' transform='rotate(45 45 40)'/%3E%3Cpath d='M180 70 Q190 55 200 70 Q190 85 180 70' transform='rotate(160 190 70)'/%3E%3Cpath d='M60 180 Q70 170 80 180 Q70 190 60 180' transform='rotate(-30 70 180)'/%3E%3Cpath d='M200 210 Q215 190 220 215 Q205 230 200 210' transform='rotate(280 210 215)'/%3E%3C/g%3E%3C/svg%3E"); }
         .dark-mode .pt-ripples { background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23fff' stroke-width='2.2' stroke-opacity='0.15'%3E%3Ccircle cx='80' cy='80' r='15'/%3E%3Ccircle cx='80' cy='80' r='28'/%3E%3Ccircle cx='80' cy='80' r='45'/%3E%3Ccircle cx='300' cy='70' r='22'/%3E%3Ccircle cx='150' cy='300' r='12'/%3E%3Ccircle cx='150' cy='300' r='25'/%3E%3Ccircle cx='320' cy='320' r='18'/%3E%3C/g%3E%3C/svg%3E"); }
 
+        /* --- 原始排版样式 (保留) --- */
         .top-section { display: flex; flex-direction: column; width: 100%; position: relative; z-index: 20; box-sizing: border-box; }
         .banner-box { width: 100%; height: auto; position: relative; overflow: hidden; display: none; }
         #p-banner { width: 100%; display: block; }
@@ -158,48 +117,45 @@
         .ly-standard .header-area { text-align: center; }
         .ly-typewriter .content-main { border: 1px solid var(--primary-color); margin: 40px 60px; padding: 40px; box-sizing: border-box; }
 
-        /* --- 修正：复古模式标题 --- */
         .ly-retro .header-area { text-align: left; padding: 60px 75px 20px 75px; }
         .ly-retro .p-title {
-            display: inline-block;
-            font-weight: 900;
-            font-style: italic;
-            padding: 12px 25px;
-            border: 5px solid var(--primary-color);
-            line-height: 1.1;
-            margin-bottom: 40px;
-            word-break: break-all;
-            /* 正常显示时使用 box-shadow */
-            box-shadow: 10px 10px 0px var(--primary-color);
-            position: relative;
-            z-index: 5;
-            background-color: var(--bg-color); /* 确保不透明以遮挡物理投影 */
+            display: inline-block; font-weight: 900; font-style: italic; padding: 12px 25px; border: 5px solid var(--primary-color); line-height: 1.1; margin-bottom: 40px; word-break: break-all; box-shadow: 10px 10px 0px var(--primary-color); position: relative; z-index: 5; background-color: var(--bg-color);
         }
-        .ly-retro .p-author {
-            display: block;
-            font-size: 1.6rem;
-            font-weight: 700;
-            font-style: italic;
-            text-shadow: 6px 6px 0px rgba(0,0,0,0.15);
-            opacity: 1;
-            margin-top: 10px;
-        }
-        .dark-mode.ly-retro .p-author { text-shadow: 6px 6px 0px rgba(255,255,255,0.1); }
+        .ly-retro .p-author { display: block; font-size: 1.6rem; font-weight: 700; font-style: italic; text-shadow: 6px 6px 0px rgba(0,0,0,0.15); opacity: 1; margin-top: 10px; }
 
         .ly-ancient .top-section { flex-direction: row-reverse; justify-content: flex-start; align-items: flex-start; padding: 60px 75px 20px 75px; gap: 30px; }
         .ly-ancient .header-area { padding: 0; flex-shrink: 0; display: flex; flex-direction: row-reverse; max-width: 280px; align-items: flex-start; }
         .ly-ancient .p-title { writing-mode: vertical-rl; text-orientation: upright; font-size: 2.8rem; letter-spacing: 0.5rem; border-left: 1px solid; padding-left: 20px; line-height: 1.2; display: block; }
         .ly-ancient .p-author { display: block; font-size: 0.9rem; font-style: italic; margin: 0 15px; padding-top: 15px; opacity: 0.8; line-height: 1.1; text-align: center; }
-        .ly-ancient .banner-box { display: block; width: 240px; margin: 0; order: 2; box-shadow: 0 15px 45px rgba(0,0,0,0.35); }
-        .p-meta { font-size: 0.75rem; opacity: 0.5; margin-top: 8px; font-style: normal; }
-        .ly-ancient .p-meta { writing-mode: horizontal-tb !important; width: 1.2em !important; text-align: center; margin-top: 0; margin-right: 10px; padding-top: 15px; height: fit-content; border-right: 1px solid rgba(0,0,0,0.1); padding-right: 5px; font-size: 0.75rem; line-height: 1.2; }
-
+        
         .content-main { padding: 40px 75px 120px 75px; position: relative; z-index: 10; flex-grow: 1; }
         .p-title { font-size: calc(var(--font-size) * 2.2); margin: 0; font-weight: 700; line-height: 1.2; white-space: pre-wrap; word-break: break-word; }
         .p-author { display: block; margin-top: 15px; font-size: 0.85rem; font-style: italic; opacity: 0.8; }
         .p-preface { border-left: 4px solid; padding: 15px 25px; margin: 40px 0; font-style: italic; background: rgba(0,0,0,0.03); white-space: pre-wrap; word-break: break-all; }
         .p-text { font-size: var(--font-size); line-height: var(--line-height); text-align: justify; outline: none; white-space: pre-wrap; position: relative; z-index: 10; }
         .p-postscript { margin-top: 60px; padding-top: 30px; border-top: 1px dashed; font-size: 1rem; opacity: 0.7; }
+
+        /* --- MARKDOWN 模式适配样式 --- */
+        .p-text.markdown-rendered { white-space: normal; } 
+        .p-text.markdown-rendered h1, .p-text.markdown-rendered h2, .p-text.markdown-rendered h3 { margin-top: 1.5em; margin-bottom: 0.8em; line-height: 1.3; }
+        .p-text.markdown-rendered p { margin-bottom: 1.2em; }
+        .p-text.markdown-rendered blockquote { 
+            border-left: 4px solid var(--primary-color); padding: 5px 15px; 
+            background: rgba(0,0,0,0.03); font-style: italic; opacity: 0.8; margin: 1.5em 0; 
+        }
+        .p-text.markdown-rendered ul, .p-text.markdown-rendered ol { padding-left: 25px; margin-bottom: 1.2em; }
+        .p-text.markdown-rendered code { background: rgba(0,0,0,0.06); padding: 2px 4px; border-radius: 4px; font-family: monospace; }
+        .p-text.markdown-rendered hr { border: none; border-top: 1px dashed var(--primary-color); opacity: 0.3; margin: 2em 0; }
+
+        /* MD 模式开关 UI */
+        .md-toggle-box { display: flex; align-items: center; justify-content: space-between; background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #eee; }
+        .md-toggle-box span { font-size: 0.85rem; font-weight: bold; color: #d44b4b; }
+        .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #d44b4b; }
+        input:checked + .slider:before { transform: translateX(22px); }
 
         .toolbar { display: flex; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
         .toolbar button { padding: 8px 12px; background: #eee; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
@@ -210,6 +166,18 @@
 <body>
 
 <div class="sidebar" id="sidebar">
+    <div class="section">
+        <h3>0. Markdown 模式</h3>
+        <div class="md-toggle-box">
+            <span>解析 Markdown 语法</span>
+            <label class="switch">
+                <input type="checkbox" id="mdToggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <p style="font-size: 11px; color: #888; margin-top: -5px;">开启后，正文将支持 #标题、>引用、**加粗** 等语法。开启期间无法直接编辑文字。</p>
+    </div>
+
     <div class="section">
         <h3>1. 横幅图</h3>
         <input type="file" id="imageInput" accept="image/*">
@@ -267,7 +235,7 @@
             <option value="20px">20px</option>
             <option value="22px">22px</option>
         </select>
-        <div class="toolbar">
+        <div class="toolbar" id="editToolbar">
             <button onclick="document.execCommand('bold')">B</button>
             <button onclick="document.execCommand('italic')">I</button>
             <button onclick="document.execCommand('underline')">U</button>
@@ -338,26 +306,35 @@
             <div class="content-main">
                 <div class="p-preface" id="p-preface"></div>
                 <div class="p-text" id="p-text" contenteditable="true">
-    你好，这里是丐版长文排版器。
-    
-    功能目前很少，只能排版长文，本工具的全部重心都会放在长文章上。
-    强烈推荐使用电脑版生成长图
-    任意插入图片、编辑插入图片等选项对我而言有点难，可预测的未来内不会考虑。
-    推荐使用细长的头图，大尺寸的图会填满整个长图的顶部。
-    出现在这里的每一个字都可以直接编辑或删除，试着删除这一行吧！
-    本工具是静态网页，【不会】储存任何数据，千万不要把它当码字软件。
-    本工具支持至多1w5的长文排版，字数过多会因图片过大而无法生成/打开长图。横幅图片尺寸过大或者过于清晰（2k或4k）同样会导致卡顿。
-    手机用户推荐排版1w字以下的文章，尤其是IOS用户，有可能会无法生成。
-    你可以在左边的选项栏中自定义你的排版，挑完自助后点击右下角的“导出长图”来获得你的长图排版。
+# 你好，这里是丐版长文排版器
 
-    已知问题：
-    1.切换字体时有概率会回到默认字体。
-    2.手机页面选中文字后会与改变字形（加粗、斜体等）操作冲突导致丢失焦点。
-    解决方法：
-    1.等1分钟还是没变化刷新一下网页，大概率在下载字体文件。
-    2.想办法修复中，有需求的朋友们可以使用电脑版改变字形。
-    
-    删除Readme，粘贴你的作品来开始排版，玩得开心！——R
+## 工具简介
+作为静态html小工具，本排版器的功能很有限，全部重心放在长文字排版上，未来不会加入更多图片编辑更新。
+本工具为静态网页，【不会】储存任何数据，记得保存。支持至多1w5的长文排版，手机用户推荐排版1w字以下的文章。
+出现在这里的每一个字都可以进行编辑，**删除这一行字试试吧！**
+> 感谢微博@阿尔吉侬的日记本uu的建议，火速更新了Markdown识别功能。
+你可以在左边的选项栏中自定义排版，点击右下角的“导出长图”获得成图。
+
+## **New!** Markdown功能说明
+- **加粗** *斜体* ~~删除线~~
+- 支持基础列表
+- > 这是一个引用块
+> 还可以有好几行引用
+- > 开启Markdown开关后这里的一切都会大变样，但左侧编辑按钮会锁定。
+> 如果不使用Markdown，记得保持开关关闭，像往常一样编辑即可。
+
+***
+~~上面是分割线~~
+
+### 已知问题：
+1. 切换字体时有概率会回到默认字体。
+2. 匆忙上线的Markdown还没有怎么测试过
+解决方法：
+1. 等1分钟还是没变化刷新一下网页，大概率在下载字体文件。
+2. 遇到问题劳烦大家反馈一下，微博写手bot投稿下或者直接戳我都可以。
+
+关闭Markdown开关，删除Readme，粘贴你的作品来开始排版，玩得开心！——R
+
                 </div>
                 <div class="p-postscript" id="p-postscript"></div>
             </div>
@@ -368,6 +345,32 @@
 <button class="save-btn" onclick="saveAsImage()">导出长图</button>
 
 <script>
+    // --- Markdown 开关逻辑 ---
+    let originalMarkdownSource = "";
+    const mdToggle = document.getElementById('mdToggle');
+    const pText = document.getElementById('p-text');
+
+    marked.setOptions({ breaks: true, gfm: true });
+
+    mdToggle.onchange = function() {
+        if (this.checked) {
+            originalMarkdownSource = pText.innerText;
+            pText.innerHTML = marked.parse(originalMarkdownSource);
+            pText.contentEditable = "false";
+            pText.classList.add('markdown-rendered');
+            document.getElementById('editToolbar').style.opacity = "0.3";
+            document.getElementById('editToolbar').style.pointerEvents = "none";
+        } else {
+            pText.innerText = originalMarkdownSource || pText.innerText;
+            pText.contentEditable = "true";
+            pText.classList.remove('markdown-rendered');
+            document.getElementById('editToolbar').style.opacity = "1";
+            document.getElementById('editToolbar').style.pointerEvents = "auto";
+        }
+        updateMetaData();
+    };
+
+    // --- 调色板与黑暗模式逻辑 ---
     const palettes = [
         { name: '经典', bg: '#ffffff', text: '#2d3436' },
         { name: '远山', bg: '#e9eaf0', text: '#2a3040' },
@@ -397,6 +400,7 @@
     }
 
     function applyIndent(shouldIndent) {
+        if (mdToggle.checked) return;
         const textEl = document.getElementById('p-text');
         const lines = textEl.innerText.split('\n');
         const newLines = lines.map(line => {
@@ -408,6 +412,7 @@
     }
 
     function setSpacing(type) {
+        if (mdToggle.checked) return;
         const textEl = document.getElementById('p-text');
         let text = textEl.innerText;
         const btns = document.querySelectorAll('#spacingSelect .btn-opt');
@@ -423,31 +428,17 @@
         let result = ""; 
         let lineLength = 0;
         const cleanText = text.replace(/\n/g, "");
-        
-        // 定义半角数字转全角的工具函数
-        const toFullWidthNum = (num) => {
-            return String.fromCharCode(num.charCodeAt(0) + 0xFEE0);
-        };
-
+        const toFullWidthNum = (num) => String.fromCharCode(num.charCodeAt(0) + 0xFEE0);
         for (let i = 0; i < cleanText.length; i++) {
             let char = cleanText[i]; 
-            
             let processedChar = char;
-            // 如果是数字，将其转换为全角数字并包裹在 span 中确保布局稳定
             if (/[0-9]/.test(char)) {
                 const fullWidthChar = toFullWidthNum(char);
                 processedChar = `<span style="display:inline-block; width:1em; text-align:center; line-height:1;">${fullWidthChar}</span>`;
             }
-
-            result += processedChar; 
-            lineLength++;
-            
-            // 换行逻辑
+            result += processedChar; lineLength++;
             let shouldBreak = lineLength >= 5 || specialPuncs.test(char) || (char === '—' && cleanText[i+1] !== '—' && cleanText[i-1] === '—');
-            if (shouldBreak && i < cleanText.length - 1) { 
-                result += "<br>"; 
-                lineLength = 0; 
-            }
+            if (shouldBreak && i < cleanText.length - 1) { result += "<br>"; lineLength = 0; }
         }
         return result;
     }
@@ -478,15 +469,13 @@
                 document.querySelectorAll('#paletteSelect .btn-opt').forEach(x => x.classList.remove('active'));
                 b.classList.add('active');
                 const area = document.getElementById('capture-area');
-                area.style.backgroundColor = p.bg; 
-                area.style.color = p.text;
+                area.style.backgroundColor = p.bg; area.style.color = p.text;
                 document.documentElement.style.setProperty('--primary-color', p.text);
-                /* 核心：同步更新背景色变量，用于复古模式的阴影处理 */
                 document.documentElement.style.setProperty('--bg-color', p.bg);
                 const patternBox = document.getElementById('patternBox');
-                if (['黑暗', '森林', '月夜', '古铜', '玫瑰', '大地', '暮霭', '迷彩'].includes(p.name)) {
-                    area.classList.add('dark-mode'); patternBox.style.opacity = '0.15';
-                } else { area.classList.remove('dark-mode'); patternBox.style.opacity = '0.15'; }
+                if (['黑暗', '森林', '月夜', '古铜', '玫瑰', '大地', '暮霭'].includes(p.name)) {
+                    area.classList.add('dark-mode'); 
+                } else { area.classList.remove('dark-mode'); }
             };
             pCont.appendChild(b);
         });
@@ -563,8 +552,7 @@
         const area = document.getElementById('capture-area');
         const originalTransform = area.style.transform;
         const originalZoom = area.style.zoom;
-        area.style.transform = 'none';
-        area.style.zoom = '1';
+        area.style.transform = 'none'; area.style.zoom = '1';
 
         try {
             document.querySelector('.preview-container').scrollTop = 0;
@@ -574,17 +562,12 @@
                 height: area.scrollHeight,
                 windowHeight: area.scrollHeight,
                 onclone: (clonedDoc) => {
-                    /* --- 彻底修正：复古标题物理注入逻辑 --- */
                     const retroTitle = clonedDoc.querySelector('.ly-retro #p-title');
                     if (retroTitle) { 
-                        // 1. 获取主色调
                         const primaryColor = getComputedStyle(area).getPropertyValue('--primary-color');
-                        // 2. 移除原有的 box-shadow 以免导出时计算错误
                         retroTitle.style.boxShadow = 'none';
-                        // 3. 物理注入阴影：创建一个真实存在的 div 放在标题之后
                         const shadowDiv = clonedDoc.createElement('div');
-                        shadowDiv.style.position = 'absolute';
-                        shadowDiv.style.zIndex = '1';
+                        shadowDiv.style.position = 'absolute'; shadowDiv.style.zIndex = '1';
                         shadowDiv.style.backgroundColor = primaryColor;
                         shadowDiv.style.width = retroTitle.offsetWidth + 'px';
                         shadowDiv.style.height = retroTitle.offsetHeight + 'px';
@@ -592,39 +575,19 @@
                         shadowDiv.style.top = (retroTitle.offsetTop + 10) + 'px';
                         shadowDiv.style.border = '5px solid ' + primaryColor;
                         shadowDiv.style.boxSizing = 'content-box';
-                        // 4. 将阴影注入到标题所在容器
                         retroTitle.parentNode.appendChild(shadowDiv);
-                        // 5. 确保标题本身在最上层
-                        retroTitle.style.zIndex = '5';
-                        retroTitle.style.position = 'relative';
+                        retroTitle.style.zIndex = '5'; retroTitle.style.position = 'relative';
                         retroTitle.style.backgroundColor = getComputedStyle(area).backgroundColor;
                     }
 
                     const clonedText = clonedDoc.getElementById('p-text');
                     if (clonedText) {
                         clonedText.style.textAlign = 'justify';
-                        
-                        // 定义需要处理的标点符号映射
-                        const puncs = [
-                            { reg: /【/g, char: '【' },
-                            { reg: /】/g, char: '】' },
-                            { reg: /“/g, char: '“' },
-                            { reg: /”/g, char: '”' },
-                            { reg: /（/g, char: '（' },
-                            { reg: /）/g, char: '）' }
-                        ];
-
+                        const puncs = [{ reg: /【/g, char: '【' }, { reg: /】/g, char: '】' }, { reg: /“/g, char: '“' }, { reg: /”/g, char: '”' }, { reg: /（/g, char: '（' }, { reg: /）/g, char: '）' }];
                         let html = clonedText.innerHTML;
-                        puncs.forEach(item => {
-                            // 将标点封装在固定 1em 宽度的容器中，确保不与文字重叠并占据完整字位
-                            html = html.replace(item.reg, `<span style="display:inline-block; width:1em; text-align:center;">${item.char}</span>`);
-                        });
-                        
+                        puncs.forEach(item => { html = html.replace(item.reg, `<span style="display:inline-block; width:1em; text-align:center;">${item.char}</span>`); });
                         clonedText.innerHTML = html;
                     }
-
-                    const clonedPattern = clonedDoc.getElementById('patternBox');
-                    if (clonedPattern) { clonedPattern.style.height = area.scrollHeight + 'px'; }
                 }
             });
             const link = document.createElement('a');
