@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>丐版长文排版器 (Markdown全功能整合版)</title>
+    <title>丐版长文排版器</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont@1.1.0/style.css" />
@@ -287,6 +287,15 @@
             <div class="btn-opt active" onclick="setSpacing(1)">不空行</div>
             <div class="btn-opt" onclick="setSpacing(2)">空一行</div>
         </div>
+        <br>
+        <div class="md-toggle-box" style="margin-top: 10px;">
+            <span>超长文本自动分卷</span>
+            <label class="switch">
+                <input type="checkbox" id="splitToggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <p style="font-size: 11px; color: #888; margin-top: -5px;">>5000字开启有效，每卷约4000字。</p>
     </div>
 </div>
 
@@ -295,7 +304,7 @@
 <div class="preview-container">
     <div id="capture-area" class="ly-standard">
         <div id="patternBox" class="pattern-layer"></div>
-        <div class="top-section">
+        <div class="top-section" id="topSection">
             <div id="bannerBox" class="banner-box">
                 <div id="bannerOverlay"></div>
                 <img id="p-banner" src="">
@@ -326,6 +335,7 @@
 > 还可以有好几行引用
 - > 开启Markdown开关后这里的一切都会大变样，但左侧编辑按钮会锁定。
 > 如果不使用Markdown，记得保持开关关闭，像往常一样编辑即可。
+- 末尾有超长文本分卷功能，5000字以上开启有效。
 
 ***
 ~~上面是分割线~~
@@ -447,7 +457,7 @@
     }
 
     function updateMetaData() {
-        const text = document.getElementById('p-text').innerText || "";
+        const text = (mdToggle.checked ? originalMarkdownSource : document.getElementById('p-text').innerText) || "";
         const count = text.replace(/\s/g, "").length; 
         const minutes = Math.ceil(count / 400) || 1; 
         const metaEl = document.getElementById('p-meta');
@@ -548,69 +558,125 @@
         document.getElementById('imageInput').value = "";
     }
 
+    // 新增：智能分割文本函数
+    function splitTextIntoChunks(text, limit) {
+        const chunks = [];
+        let currentText = text;
+        while (currentText.length > 0) {
+            if (currentText.length <= limit) {
+                chunks.push(currentText);
+                break;
+            }
+            let splitIndex = currentText.lastIndexOf('\n', limit);
+            if (splitIndex === -1 || splitIndex < limit * 0.7) splitIndex = limit;
+            chunks.push(currentText.substring(0, splitIndex));
+            currentText = currentText.substring(splitIndex).trimStart();
+        }
+        return chunks;
+    }
+
     async function saveAsImage() {
         const btn = document.querySelector('.save-btn');
-        btn.innerText = '正在生成...'; btn.disabled = true;
-        
-        await document.fonts.ready;
         const area = document.getElementById('capture-area');
+        const pText = document.getElementById('p-text');
+        const topSection = document.getElementById('topSection');
+        const pPreface = document.getElementById('p-preface');
+        const isMD = document.getElementById('mdToggle').checked;
+        const rawFullText = isMD ? originalMarkdownSource : pText.innerText;
+        const totalChars = rawFullText.length;
+        const doSplit = document.getElementById('splitToggle').checked && totalChars > 5000;
+
+        btn.innerText = '正在生成...'; btn.disabled = true;
+        await document.fonts.ready;
+
         const originalTransform = area.style.transform;
         const originalZoom = area.style.zoom;
         area.style.transform = 'none'; area.style.zoom = '1';
 
-        try {
-            document.querySelector('.preview-container').scrollTop = 0;
-            const canvas = await html2canvas(area, {
-                scale: 2, useCORS: true,
-                backgroundColor: getComputedStyle(area).backgroundColor,
-                height: area.scrollHeight,
-                windowHeight: area.scrollHeight,
-                onclone: (clonedDoc) => {
-                    const retroTitle = clonedDoc.querySelector('.ly-retro #p-title');
-                    if (retroTitle) { 
-                        const primaryColor = getComputedStyle(area).getPropertyValue('--primary-color');
-                        retroTitle.style.boxShadow = 'none';
-                        const shadowDiv = clonedDoc.createElement('div');
-                        shadowDiv.style.position = 'absolute'; shadowDiv.style.zIndex = '1';
-                        shadowDiv.style.backgroundColor = primaryColor;
-                        shadowDiv.style.width = retroTitle.offsetWidth + 'px';
-                        shadowDiv.style.height = retroTitle.offsetHeight + 'px';
-                        shadowDiv.style.left = (retroTitle.offsetLeft + 10) + 'px';
-                        shadowDiv.style.top = (retroTitle.offsetTop + 10) + 'px';
-                        shadowDiv.style.border = '5px solid ' + primaryColor;
-                        shadowDiv.style.boxSizing = 'content-box';
-                        retroTitle.parentNode.appendChild(shadowDiv);
-                        retroTitle.style.zIndex = '5'; retroTitle.style.position = 'relative';
-                        retroTitle.style.backgroundColor = getComputedStyle(area).backgroundColor;
-                    }
+        // 提取正文内容进行分段
+        const textChunks = doSplit ? splitTextIntoChunks(rawFullText, 4000) : [rawFullText];
 
-                    const clonedText = clonedDoc.getElementById('p-text');
-                    if (clonedText) {
-                        clonedText.style.textAlign = 'justify';
-                        // 递归处理标点符号，防止重叠
-                        const wrapPunctuationRecursive = (node) => {
-                            if (node.nodeType === 3) { 
-                                const text = node.nodeValue;
-                                const regex = /([【】“”（）《》「」])/g;
-                                if (regex.test(text)) {
-                                    const tempSpan = clonedDoc.createElement('span');
-                                    tempSpan.innerHTML = text.replace(regex, '<span style="display:inline-block; padding:0 0.05em; line-height:1;">$1</span>');
-                                    node.parentNode.replaceChild(tempSpan, node);
-                                }
-                            } else if (node.nodeType === 1) { 
-                                for (let i = node.childNodes.length - 1; i >= 0; i--) {
-                                    wrapPunctuationRecursive(node.childNodes[i]);
-                                }
-                            }
-                        };
-                        wrapPunctuationRecursive(clonedText);
-                    }
+        try {
+            for (let i = 0; i < textChunks.length; i++) {
+                if (doSplit) btn.innerText = `生成第 ${i+1}/${textChunks.length} 卷...`;
+
+                // 准备当前页内容
+                // 第一张图显示头部、题记；后续图隐藏
+                topSection.style.display = (i === 0) ? 'flex' : 'none';
+                pPreface.style.display = (i === 0 && document.getElementById('prefaceInput').value.trim()) ? 'block' : 'none';
+                
+                // 渲染文本
+                if (isMD) {
+                    pText.innerHTML = marked.parse(textChunks[i]);
+                } else {
+                    pText.innerText = textChunks[i];
                 }
-            });
-            const link = document.createElement('a');
-            link.download = '排版长图_' + Date.now() + '.png';
-            link.href = canvas.toDataURL('image/png'); link.click();
-        } catch (e) { console.error(e); alert('导出失败。'); } finally {
+
+                document.querySelector('.preview-container').scrollTop = 0;
+                
+                const canvas = await html2canvas(area, {
+                    scale: 2, useCORS: true,
+                    backgroundColor: getComputedStyle(area).backgroundColor,
+                    height: area.scrollHeight,
+                    windowHeight: area.scrollHeight,
+                    onclone: (clonedDoc) => {
+                        // 复用原有的克隆修正逻辑
+                        const retroTitle = clonedDoc.querySelector('.ly-retro #p-title');
+                        if (retroTitle && retroTitle.style.display !== 'none') { 
+                            const primaryColor = getComputedStyle(area).getPropertyValue('--primary-color');
+                            retroTitle.style.boxShadow = 'none';
+                            const shadowDiv = clonedDoc.createElement('div');
+                            shadowDiv.style.position = 'absolute'; shadowDiv.style.zIndex = '1';
+                            shadowDiv.style.backgroundColor = primaryColor;
+                            shadowDiv.style.width = retroTitle.offsetWidth + 'px';
+                            shadowDiv.style.height = retroTitle.offsetHeight + 'px';
+                            shadowDiv.style.left = (retroTitle.offsetLeft + 10) + 'px';
+                            shadowDiv.style.top = (retroTitle.offsetTop + 10) + 'px';
+                            shadowDiv.style.border = '5px solid ' + primaryColor;
+                            shadowDiv.style.boxSizing = 'content-box';
+                            retroTitle.parentNode.appendChild(shadowDiv);
+                        }
+                        const clonedText = clonedDoc.getElementById('p-text');
+                        if (clonedText) {
+                            clonedText.style.textAlign = 'justify';
+                            const wrapPunctuationRecursive = (node) => {
+                                if (node.nodeType === 3) { 
+                                    const text = node.nodeValue;
+                                    const regex = /([【】“”（）《》「」])/g;
+                                    if (regex.test(text)) {
+                                        const tempSpan = clonedDoc.createElement('span');
+                                        tempSpan.innerHTML = text.replace(regex, '<span style="display:inline-block; padding:0 0.05em; line-height:1;">$1</span>');
+                                        node.parentNode.replaceChild(tempSpan, node);
+                                    }
+                                } else if (node.nodeType === 1) { 
+                                    for (let i = node.childNodes.length - 1; i >= 0; i--) { wrapPunctuationRecursive(node.childNodes[i]); }
+                                }
+                            };
+                            wrapPunctuationRecursive(clonedText);
+                        }
+                    }
+                });
+
+                const link = document.createElement('a');
+                const suffix = doSplit ? `_卷${i+1}` : '';
+                link.download = '排版长图_' + Date.now() + suffix + '.png';
+                link.href = canvas.toDataURL('image/png'); 
+                link.click();
+                
+                // 给浏览器一点喘息时间，防止并发下载过多被拦截
+                if (doSplit) await new Promise(r => setTimeout(r, 800));
+            }
+        } catch (e) { 
+            console.error(e); alert('导出失败。'); 
+        } finally {
+            // 恢复原始显示
+            topSection.style.display = 'flex';
+            pPreface.style.display = document.getElementById('prefaceInput').value.trim() ? 'block' : 'none';
+            if (isMD) {
+                pText.innerHTML = marked.parse(rawFullText);
+            } else {
+                pText.innerText = rawFullText;
+            }
             area.style.transform = originalTransform; area.style.zoom = originalZoom;
             btn.innerText = '导出长图'; btn.disabled = false;
         }
